@@ -1,23 +1,24 @@
 // src/components/Hero.tsx
 
 import React from 'react';
-// Note: Next.js Image component is not needed here as we are using CSS bg-fixed
 
 const Hero: React.FC = () => {
   return (
     <div 
       id="header" 
-      // RESTORED: w-full h-100vh is now h-screen. 
-      // The critical bg-fixed class is back for the enveloping parallax effect.
+      // RESTORED: Parallax effect (bg-fixed) is here.
       className="w-full h-screen bg-hero-pattern bg-cover bg-center bg-fixed" 
     >
       
-      {/* This is the overlay. The bg-black/50 color is preserved. */}
-      <div className="w-full h-full bg-black/50 flex items-center">
+      {/* 1. REMOVE OVERLAY AND BLUR */}
+      {/* Changed w-full h-full bg-black/50 flex items-center backdrop-blur-sm */}
+      {/* The background is now fully transparent to show the image clearly. */}
+      <div className="w-full h-full flex items-center bg-transparent"> 
         
         <div className="container mx-auto px-5">
-          <div className="mt-[20%] md:mt-[10%] text-4xl md:text-7xl">
-            <h1 className="font-bold">
+          {/* TEXT SIZE FIX: Kept at text-5xl/text-8xl for bigger appearance */}
+          <div className="mt-[20%] md:mt-[10%] text-5xl md:text-8xl"> 
+            <h1 className="font-bold text-white"> {/* Ensure text is white for contrast */}
               We Build The<br />
               <span className="text-brand-teal">Quality</span> Softwares
             </h1>
