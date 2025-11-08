@@ -1,8 +1,11 @@
+// src/app/blog/[slug]/page.tsx
 import { sanityClient, urlFor } from '@/lib/sanity.client';
 import { SanityPostDetails, SanityImage } from '@/lib/types';
 import { PortableText } from '@portabletext/react';
 import Image from 'next/image';
 import { notFound } from 'next/navigation';
+
+// --- QUERIES AND HELPERS (No change) ---
 
 const postQuery = `*[_type == "post" && slug.current == $slug][0] {
   _id,
@@ -16,7 +19,7 @@ const postQuery = `*[_type == "post" && slug.current == $slug][0] {
 }`;
 
 const formatDate = (dateString: string): string =>
-  new Date(dateString).toLocaleDateString('en-US', {
+  new Date(dateString).toLocaleString('en-US', {
     year: 'numeric',
     month: 'long',
     day: 'numeric',
@@ -40,27 +43,35 @@ const ptComponents = {
   },
 };
 
-// PASTE THIS IN src/app/blog/[slug]/page.tsx
+// --- DATA FETCHING (Corrected) ---
 
 export async function generateStaticParams() {
-  // 1. Fetch *only* an array of slug strings
+  // Use the efficient, correct query
   const slugs: string[] = await sanityClient.fetch(`
     *[_type == "post" && defined(slug.current)].slug.current
   `);
-
-  // 2. Map the strings into the object shape Next.js requires
   return slugs.map(slug => ({
     slug: slug,
   }));
 }
 
-export default async function BlogPostPage({ params }: { params: { slug: string } }) {
-  if (!params?.slug) {
-    console.error('Slug is missing from params');
+// --- COMPONENT (Modified for Debugging) ---
+
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
+export default async function BlogPostPage(props: any) {
+  // 1. LOG THE ENTIRE PROPS OBJECT
+  console.log('BlogPostPage raw props:', JSON.stringify(props, null, 2));
+
+  // 2. Safely get the slug from the props
+  const slug = props?.params?.slug;
+
+  // 3. Check for the slug
+  if (!slug) {
+    console.error('Slug is still missing from props.params');
     notFound();
   }
 
-  const post = await sanityClient.fetch<SanityPostDetails>(postQuery, { slug: params.slug });
+  const post = await sanityClient.fetch<SanityPostDetails>(postQuery, { slug: slug });
 
   if (!post) {
     notFound();
