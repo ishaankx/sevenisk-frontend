@@ -40,13 +40,18 @@ const ptComponents = {
   },
 };
 
+// PASTE THIS IN src/app/blog/[slug]/page.tsx
+
 export async function generateStaticParams() {
-  const slugs: { slug: { current: string } }[] = await sanityClient.fetch(`
-    *[_type == "post" && defined(slug.current)]{
-      "slug": slug.current
-    }
+  // 1. Fetch *only* an array of slug strings
+  const slugs: string[] = await sanityClient.fetch(`
+    *[_type == "post" && defined(slug.current)].slug.current
   `);
-  return slugs.map(({ slug }) => ({ slug }));
+
+  // 2. Map the strings into the object shape Next.js requires
+  return slugs.map(slug => ({
+    slug: slug,
+  }));
 }
 
 export default async function BlogPostPage({ params }: { params: { slug: string } }) {
