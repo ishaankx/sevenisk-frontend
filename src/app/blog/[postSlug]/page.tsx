@@ -51,8 +51,8 @@ export async function generateStaticParams() {
     *[_type == "post" && defined(slug.current)].slug.current
   `);
   return slugs.map(slug => ({
-    slug: slug,
-  }));
+  postSlug: slug, // <-- CHANGED
+}));
 }
 
 // --- COMPONENT (Modified for Debugging) ---
@@ -63,13 +63,12 @@ export default async function BlogPostPage(props: any) {
   console.log('BlogPostPage raw props:', JSON.stringify(props, null, 2));
 
   // 2. Safely get the slug from the props
-  const slug = props?.params?.slug;
+  const slug = props?.params?.postSlug;
 
   // 3. Check for the slug
   if (!slug) {
-    console.error('Slug is still missing from props.params');
-    notFound();
-  }
+  notFound();
+ }
 
   const post = await sanityClient.fetch<SanityPostDetails>(postQuery, { slug: slug });
 
