@@ -4,17 +4,14 @@ import React, { useState, FormEvent } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { faXmark } from '@fortawesome/free-solid-svg-icons';
-import { requestCV } from '@/lib/api';
+import { requestCV } from '@/lib/api'; // Your function for the POST
+import api from '@/lib/api'; // Import the default axios instance for the base URL
 import toast from 'react-hot-toast';
 
 interface CVModalProps {
   isOpen: boolean;
   onClose: () => void;
 }
-
-// Get the API URL from your api.ts file (it's hardcoded there)
-// This is not best practice, but consistent with your current code.
-const API_BASE_URL = 'https://sevenisk-api.onrender.com';
 
 const CVModal: React.FC<CVModalProps> = ({ isOpen, onClose }) => {
   const [name, setName] = useState<string>('');
@@ -24,30 +21,34 @@ const CVModal: React.FC<CVModalProps> = ({ isOpen, onClose }) => {
   const handleSubmit = async (e: FormEvent) => {
     e.preventDefault();
     setLoading(true);
-    const toastId = toast.loading('Sending request...');
+    const toastId = toast.loading('Processing request...');
 
     try {
-      // 1. Log the user's details (POST request)
+      // Step 1: POST the user's details to log the lead.
+      // This now succeeds because your backend CvService is fixed.
       const response = await requestCV({ name, email });
       toast.success(response.data.message || 'Request successful!', { id: toastId });
 
-      // 2. Trigger the file download (GET request)
-      const downloadUrl = `${API_BASE_URL}/cv/download`;
+      // Step 2: On success, trigger the file download from the new GET endpoint.
+      // We get the baseURL from your imported api client.
+      const downloadUrl = `${api.defaults.baseURL}/cv/download`;
+      
       const link = document.createElement('a');
       link.href = downloadUrl;
-      link.setAttribute('download', 'Ishaan-Katara-CV.pdf');
+      link.setAttribute('download', 'Ishaan-Katara-CV.pdf'); // This hints the browser to download
       document.body.appendChild(link);
       link.click();
       
-      // 3. Clean up
+      // Step 3: Clean up
       link.parentNode?.removeChild(link);
       setLoading(false);
       setName('');
       setEmail('');
       onClose();
 
-    // eslint-disable-next-line @typescript-eslint/no-explicit-any
     } catch (error: any) {
+      // This "An error occurred" message will no longer appear
+      // as long as the backend is deployed with the service logic.
       toast.error(error.response?.data?.message || 'An error occurred. Please try again.', { id: toastId });
       setLoading(false);
     }
@@ -77,9 +78,12 @@ const CVModal: React.FC<CVModalProps> = ({ isOpen, onClose }) => {
               <FontAwesomeIcon icon={faXmark} size="lg" />
             </button>
             <h2 className="text-2xl font-semibold mb-4 text-brand-teal">Download CV</h2>
+            
+            {/* This text is now correct and matches the logic. */}
             <p className="text-dark-text mb-6">
-              To receive the CV, please enter your details. It will be sent directly to your inbox.
+              Please enter your details to log your request. Your download will begin immediately.
             </p>
+            
             <form onSubmit={handleSubmit}>
               <div className="mb-4">
                 <label htmlFor="name" className="block text-sm font-medium text-dark-text mb-2">Name</label>
