@@ -1,25 +1,20 @@
 import axios from 'axios';
-import { Post, ContactFormData, CVRequestData, ApiResponse } from './types';
+// FIX: We only import the types that this file actually uses.
+// 'Post' has been removed.
+import { ContactFormData, CVRequestData, ApiResponse } from './types';
 
 const API_URL = process.env.NEXT_PUBLIC_API_URL || 'https://sevenisk-api.onrender.com';
 
 const api = axios.create({
-  baseURL: API_URL, // Your deployed Nest.js backend
+  baseURL: API_URL,
   headers: {
     'Content-Type': 'application/json',
   },
 });
 
-/**
- * Fetches all published blog posts
- */
-export const getBlogPosts = () => api.get<Post[]>('/blog');
-
-/**
- * Fetches a single blog post by its slug
- * (Assuming your API route is /blog/slug/:slug based on your backend files)
- */
-export const getBlogPostBySlug = (slug: string) => api.get<Post>(`/blog/slug/${slug}`);
+// --- DELETED ---
+// We deleted getBlogPosts() and getBlogPostBySlug()
+// because your blog data now comes from Sanity, not this API.
 
 /**
  * Submits the contact form
