@@ -1,6 +1,8 @@
+// src/components/Navbar.tsx
+
 'use client';
 
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect } from 'react'; // NEW: Import useEffect
 import Link from 'next/link';
 import Image from 'next/image';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
@@ -28,7 +30,7 @@ const Navbar: React.FC = () => {
   // NEW: Scroll event listener to toggle transparency
   useEffect(() => {
     const handleScroll = () => {
-      // Set scroll state based on vertical scroll position (e.g., 50px)
+      // Set scroll state based on vertical scroll position
       setIsScrolled(window.scrollY > 50);
     };
 
