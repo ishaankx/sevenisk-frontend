@@ -12,6 +12,10 @@ interface CVModalProps {
   onClose: () => void;
 }
 
+// Get the API URL from your api.ts file (it's hardcoded there)
+// This is not best practice, but consistent with your current code.
+const API_BASE_URL = 'https://sevenisk-api.onrender.com';
+
 const CVModal: React.FC<CVModalProps> = ({ isOpen, onClose }) => {
   const [name, setName] = useState<string>('');
   const [email, setEmail] = useState<string>('');
@@ -23,13 +27,26 @@ const CVModal: React.FC<CVModalProps> = ({ isOpen, onClose }) => {
     const toastId = toast.loading('Sending request...');
 
     try {
-      const response = await requestCV({ name, email }); 
+      // 1. Log the user's details (POST request)
+      const response = await requestCV({ name, email });
+      toast.success(response.data.message || 'Request successful!', { id: toastId });
+
+      // 2. Trigger the file download (GET request)
+      const downloadUrl = `${API_BASE_URL}/cv/download`;
+      const link = document.createElement('a');
+      link.href = downloadUrl;
+      link.setAttribute('download', 'Ishaan-Katara-CV.pdf');
+      document.body.appendChild(link);
+      link.click();
       
-      toast.success(response.data.message || 'Success! The CV will be sent to your email.', { id: toastId });
+      // 3. Clean up
+      link.parentNode?.removeChild(link);
       setLoading(false);
       setName('');
       setEmail('');
       onClose();
+
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
     } catch (error: any) {
       toast.error(error.response?.data?.message || 'An error occurred. Please try again.', { id: toastId });
       setLoading(false);
@@ -91,7 +108,7 @@ const CVModal: React.FC<CVModalProps> = ({ isOpen, onClose }) => {
                 disabled={loading}
                 className="btn w-full bg-brand-teal-hover text-black py-3 px-8 rounded-md font-semibold cursor-pointer transition-all duration-300 hover:bg-brand-teal disabled:opacity-50"
               >
-                {loading ? 'Sending...' : 'Request CV'}
+                {loading ? 'Processing...' : 'Submit & Download'}
               </button>
             </form>
           </motion.div>
