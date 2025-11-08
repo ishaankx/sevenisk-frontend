@@ -44,7 +44,7 @@ export default async function BlogPage() {
                     src={urlFor(post.mainImage).width(400).height(300).url()}
                     alt={post.title}
                     fill // 'fill' is better than layout="fill" in Next 14
-                    objectFit="cover"
+                    style={{ objectFit: 'cover' }}
                     className="transition-transform duration-500 ease-in-out group-hover:scale-110"
                   />
                 </div>
