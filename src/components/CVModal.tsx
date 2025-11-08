@@ -46,6 +46,7 @@ const CVModal: React.FC<CVModalProps> = ({ isOpen, onClose }) => {
       setEmail('');
       onClose();
 
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
     } catch (error: any) {
       // This "An error occurred" message will no longer appear
       // as long as the backend is deployed with the service logic.

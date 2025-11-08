@@ -1,10 +1,20 @@
-import { getBlogPostBySlug } from '@/lib/api';
-import { Post } from '@/lib/types';
-import Link from 'next/link';
+import { sanityClient, urlFor } from '@/lib/sanity.client';
+import { SanityPostDetails, SanityImage } from '@/lib/types'; // <-- Import new types
+import { PortableText } from '@portabletext/react';
 import Image from 'next/image';
 import { notFound } from 'next/navigation';
-import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
-import { faCalendarDays, faUser } from '@fortawesome/free-solid-svg-icons';
+
+// This query fetches the single post
+const postQuery = `*[_type == "post" && slug.current == $slug][0] {
+  _id,
+  title,
+  slug,
+  mainImage,
+  body,
+  publishedAt,
+  "authorName": author->name,
+  "authorImage": author->image
+}`;
 
 // Function to format dates
 const formatDate = (dateString: string): string => {
@@ -15,73 +25,81 @@ const formatDate = (dateString: string): string => {
   });
 };
 
-interface BlogPostPageProps {
-  params: {
-    slug: string;
-  };
+// --- FIX: Strongly type the 'value' prop ---
+interface ImageComponentProps {
+  value: SanityImage & { alt?: string };
 }
 
-// This is also a React Server Component
-async function BlogPostPage({ params }: BlogPostPageProps) {
-  const { slug } = params;
-  let post: Post | null = null;
+// Define component for rendering images in the blog body
+const ptComponents = {
+  types: {
+    // FIX: value is now strongly typed
+    image: ({ value }: ImageComponentProps) => ( 
+      <Image
+        src={urlFor(value).url()}
+        alt={value.alt || 'Blog Post Image'}
+        width={1000}
+        height={600}
+        className="rounded-lg my-8"
+      />
+    ),
+  },
+};
 
-  try {
-    const response = await getBlogPostBySlug(slug);
-    post = response.data;
-  } catch (error) {
-    console.error(`Failed to fetch post: ${slug}`, error);
-    notFound(); 
-  }
+export default async function BlogPostPage({ params }: { params: { slug: string } }) {
+  // FIX: Fetch with the correct type
+  const post = await sanityClient.fetch<SanityPostDetails>(postQuery, { slug: params.slug });
 
   if (!post) {
     notFound();
   }
+  
+  // FIX: Destructure the new properties, which are now valid
+  const { title, mainImage, body, publishedAt, authorName, authorImage } = post;
 
   return (
-    <div className="pt-32 pb-20 min-h-screen">
+    <div className="pt-24 pb-20">
       <div className="container mx-auto px-5 max-w-4xl">
-        <h1 className="text-4xl md:text-6xl font-bold mb-6 text-brand-teal">{post.title}</h1>
-        
-        <div className="flex flex-wrap gap-x-6 gap-y-2 text-dark-text mb-8">
-          {post.author && (
-            <span className="flex items-center">
-              <FontAwesomeIcon icon={faUser} className="mr-2" /> {post.author.name || 'Admin'}
-            </span>
-          )}
-          <span className="flex items-center">
-            <FontAwesomeIcon icon={faCalendarDays} className="mr-2" /> {formatDate(post.createdAt)}
-          </span>
-        </div>
-
-        {post.imageUrl && (
-          <Image 
-            src={post.imageUrl} 
-            alt={post.title} 
-            width={1200}
-            height={600}
-            className="w-full h-auto max-h-[500px] object-cover rounded-lg mb-8" 
-          />
-        )}
-
-        {/* Render the blog content. 
-          The 'prose' classes come from the @tailwindcss/typography plugin,
-          which you'll need to install: npm install -D @tailwindcss/typography
-          (Make sure to add it to your tailwind.config.ts or globals.css if using v4)
-        */}
-        <div
-          className="prose prose-invert prose-lg max-w-none
-                     prose-h1:text-brand-teal-dark prose-h2:text-brand-teal-dark
-                     prose-a:text-brand-teal prose-strong:text-white"
-          dangerouslySetInnerHTML={{ __html: post.content }}
+        {/* Header Image */}
+        <Image
+          src={urlFor(mainImage).width(1200).height(600).url()}
+          alt={title}
+          width={1200}
+          height={600}
+          className="w-full h-auto max-h-[500px] object-cover rounded-lg mb-8"
         />
         
-        <Link href="/blog" className="btn inline-block border border-brand-teal-dark py-3 px-8 rounded-md text-white mt-12 transition-all duration-500 hover:bg-brand-teal-dark">
-          &larr; Back to Blog
-        </Link>
+        <h1 className="text-4xl md:text-6xl font-bold mb-6 text-brand-teal">{title}</h1>
+        
+        {/* Author Byline */}
+        <div className="flex items-center mb-8">
+          {authorImage && (
+            <Image
+              src={urlFor(authorImage).width(50).height(50).url()}
+              alt={authorName}
+              width={50}
+              height={50}
+              className="rounded-full mr-4"
+            />
+          )}
+          <div className="text-dark-text">
+            <span>By {authorName}</span>
+            <span className="mx-2">•</span>
+            <span>{formatDate(publishedAt)}</span> {/* <-- FIX: This now works */}
+          </div>
+        </div>
+
+        {/* Main Content */}
+        <div className="prose prose-invert prose-lg max-w-none
+                        prose-h1:text-brand-teal-dark prose-h2:text-brand-teal-dark
+                        prose-a:text-brand-teal prose-strong:text-white
+                        prose-blockquote:border-l-brand-teal">
+          <PortableText value={body} components={ptComponents} />
+        </div>
       </div>
     </div>
   );
 }
 
-export default BlogPostPage;
+// Revalidate the page every 60 seconds
+export const revalidate = 60;
