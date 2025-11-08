@@ -1,8 +1,10 @@
 import axios from 'axios';
 import { Post, ContactFormData, CVRequestData, ApiResponse } from './types';
 
+const API_URL = process.env.NEXT_PUBLIC_API_URL || 'https://sevenisk-api.onrender.com';
+
 const api = axios.create({
-  baseURL: 'https://sevenisk-api.onrender.com', // Your deployed Nest.js backend
+  baseURL: API_URL, // Your deployed Nest.js backend
   headers: {
     'Content-Type': 'application/json',
   },
