@@ -1,11 +1,8 @@
-// next.config.ts (AFTER)
-import type { NextConfig } from "next";
-
-const nextConfig: NextConfig = {
-  /* config options here */
+/** @type {import('next').NextConfig} */
+const nextConfig = {
   reactCompiler: true,
-  
-  // ADD THIS 'images' BLOCK
+
+  // This is the image config we added
   images: {
     remotePatterns: [
       {
