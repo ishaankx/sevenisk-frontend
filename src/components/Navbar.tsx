@@ -2,7 +2,7 @@
 
 'use client';
 
-import React, { useState, useEffect } from 'react'; // NEW: Import useEffect
+import React, { useState, useEffect } from 'react'; // ADD useEffect
 import Link from 'next/link';
 import Image from 'next/image';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
@@ -16,7 +16,7 @@ interface NavLink {
 
 const Navbar: React.FC = () => {
   const [isMenuOpen, setIsMenuOpen] = useState<boolean>(false);
-  const [isScrolled, setIsScrolled] = useState<boolean>(false); // NEW: State for scroll transparency
+  const [isScrolled, setIsScrolled] = useState<boolean>(false); // NEW STATE for scroll transparency
 
   const navLinks: NavLink[] = [
     { href: '/#header', title: 'Home' },
@@ -30,7 +30,7 @@ const Navbar: React.FC = () => {
   // NEW: Scroll event listener to toggle transparency
   useEffect(() => {
     const handleScroll = () => {
-      // Set scroll state based on vertical scroll position
+      // Toggle 'isScrolled' based on scroll position (e.g., after 50px)
       setIsScrolled(window.scrollY > 50);
     };
 
@@ -56,17 +56,18 @@ const Navbar: React.FC = () => {
   };
 
   return (
+    // APPLY DYNAMIC CLASSES HERE
     <nav className={navbarClasses}>
-      <div className="container mx-auto px-5 py-3 flex justify-between items-center">
+      <div className="container mx-auto px-5 py-4 flex justify-between items-center">
         <Link href="/">
-          {/* LOGO SIZE FIX: Use smaller container and fill */}
+          {/* LOGO SIZE FIX: Reduced size and changed from static width/height to fill */}
           <div className="relative w-28 h-7 md:w-36 md:h-9">
               <Image 
                 src="/images/s.png" 
                 alt="SevenIsK Logo" 
                 fill
                 style={{ objectFit: 'contain' }}
-                priority // Priority loading for the logo
+                priority 
               />
           </div>
         </Link>
@@ -94,7 +95,7 @@ const Navbar: React.FC = () => {
         <AnimatePresence>
           {isMenuOpen && (
             <motion.div
-              variants={mobileMenuVariants}
+              variants={mobileMenuVariants} 
               initial="hidden"
               animate="visible"
               exit="exit"
