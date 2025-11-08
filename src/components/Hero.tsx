@@ -1,23 +1,40 @@
+// src/components/Hero.tsx
+
 import React from 'react';
+import Image from 'next/image'; // Import Next.js Image component
 
 const Hero: React.FC = () => {
   return (
-    <div id="header" className="w-full h-100vh bg-hero-pattern bg-cover bg-center bg-fixed">
+    // Change: Set container to relative and use h-screen for full height
+    <div 
+      id="header" 
+      className="relative w-full h-screen overflow-hidden" // Removed bg-hero-pattern and related CSS
+    >
       
-      {/* This is the overlay. 
-        The class is now 'bg-black/50' (v4 syntax) instead of 'bg-black bg-opacity-50' (v3 syntax).
-        This will make the overlay 50% transparent, and your background image will show through.
-      */}
-      <div className="w-full h-full bg-black/50 flex items-center">
+      {/* 1. OPTIMIZED BACKGROUND IMAGE LAYER */}
+      <Image
+        // Using a high-quality file for the background
+        src="/images/Designer.jpg"
+        alt="SevenIsK Background"
+        fill // Make image fill the parent div
+        priority // Critical for LCP/fastest loading
+        style={{ objectFit: 'cover' }} // Ensure image covers the area without distortion
+        className="z-0 opacity-20" // Apply low opacity to the image itself
+      />
+      
+      {/* 2. DARK OVERLAY (for text contrast) */}
+      <div className="absolute inset-0 w-full h-full bg-black/50 z-10">
         
-        <div className="container mx-auto px-5">
-          <div className="mt-[20%] md:mt-[10%] text-4xl md:text-7xl">
+        {/* 3. HERO CONTENT */}
+        <div className="container mx-auto px-5 h-full flex items-center">
+          <div className="text-white mt-[20%] md:mt-[10%] text-4xl md:text-7xl relative z-20">
             <h1 className="font-bold">
               We Build The<br />
               <span className="text-brand-teal">Quality</span> Softwares
             </h1>
           </div>
         </div>
+        
       </div>
     </div>
   );

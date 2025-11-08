@@ -1,11 +1,11 @@
 'use client';
 
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import Link from 'next/link';
 import Image from 'next/image';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { faBars, faXmark } from '@fortawesome/free-solid-svg-icons';
-import { motion, AnimatePresence, Variants, Transition } from 'framer-motion'; // Import Variants and Transition
+import { motion, AnimatePresence, Variants, Transition } from 'framer-motion';
 
 interface NavLink {
   href: string;
@@ -14,6 +14,7 @@ interface NavLink {
 
 const Navbar: React.FC = () => {
   const [isMenuOpen, setIsMenuOpen] = useState<boolean>(false);
+  const [isScrolled, setIsScrolled] = useState<boolean>(false); // NEW: State for scroll transparency
 
   const navLinks: NavLink[] = [
     { href: '/#header', title: 'Home' },
@@ -24,8 +25,26 @@ const Navbar: React.FC = () => {
     { href: '/#contact', title: 'Contact' },
   ];
 
-  // --- THIS IS THE FIX ---
-  // We define the transition type explicitly
+  // NEW: Scroll event listener to toggle transparency
+  useEffect(() => {
+    const handleScroll = () => {
+      // Set scroll state based on vertical scroll position (e.g., 50px)
+      setIsScrolled(window.scrollY > 50);
+    };
+
+    window.addEventListener('scroll', handleScroll);
+    return () => window.removeEventListener('scroll', handleScroll);
+  }, []);
+
+  // NEW: Dynamic Navbar classes
+  const navbarClasses = `
+    fixed top-0 left-0 w-full z-50 transition-all duration-300 ease-in-out
+    ${isScrolled 
+      ? 'bg-dark-bg bg-opacity-80 backdrop-blur-sm shadow-lg' // Solid/Blurred when scrolled
+      : 'bg-transparent' // Transparent when at the top
+    }
+  `;
+
   const slideInTransition: Transition = { type: 'tween', duration: 0.3 };
 
   const mobileMenuVariants: Variants = {
@@ -33,14 +52,21 @@ const Navbar: React.FC = () => {
     visible: { x: 0, transition: slideInTransition },
     exit: { x: '100%', transition: slideInTransition },
   };
-  // --- END OF FIX ---
 
   return (
-    <nav className="fixed top-0 left-0 w-full bg-dark-bg bg-opacity-80 backdrop-blur-sm z-50">
-      <div className="container mx-auto px-5 py-4 flex justify-between items-center">
+    <nav className={navbarClasses}>
+      <div className="container mx-auto px-5 py-3 flex justify-between items-center">
         <Link href="/">
-          {/* Logo from index.html */}
-          <Image src="/images/s.png" alt="SevenIsK Logo" width={200} height={50} className="w-48 md:w-56" />
+          {/* LOGO SIZE FIX: Use smaller container and fill */}
+          <div className="relative w-28 h-7 md:w-36 md:h-9">
+              <Image 
+                src="/images/s.png" 
+                alt="SevenIsK Logo" 
+                fill
+                style={{ objectFit: 'contain' }}
+                priority // Priority loading for the logo
+              />
+          </div>
         </Link>
 
         {/* Desktop Menu */}
@@ -66,7 +92,7 @@ const Navbar: React.FC = () => {
         <AnimatePresence>
           {isMenuOpen && (
             <motion.div
-              variants={mobileMenuVariants} // This now uses the correctly typed object
+              variants={mobileMenuVariants}
               initial="hidden"
               animate="visible"
               exit="exit"
@@ -78,7 +104,7 @@ const Navbar: React.FC = () => {
                     <Link
                       href={link.href}
                       className="text-white text-xl"
-                      onClick={() => setIsMenuOpen(false)} // Close menu on click
+                      onClick={() => setIsMenuOpen(false)}
                     >
                       {link.title}
                     </Link>
