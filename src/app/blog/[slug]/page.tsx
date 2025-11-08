@@ -101,5 +101,5 @@ export default async function BlogPostPage({ params }: { params: { slug: string 
   );
 }
 
-// Revalidate the page every 60 seconds
+// Revalidate the page every 60 seconds on vercel
 export const revalidate = 60;
