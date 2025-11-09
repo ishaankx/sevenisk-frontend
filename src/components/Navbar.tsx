@@ -57,7 +57,7 @@ const Navbar: React.FC = () => {
   return (
     <nav className={navbarClasses}>
       {/* Container Padding and Flex Layout */}
-      <div className="container mx-auto px-5 py-4 flex justify-between items-center">
+      <div className="w-full px-5 py-4 flex justify-between items-center">
         
         <Link href="/">
           {/* LOGO SIZE FIX */}

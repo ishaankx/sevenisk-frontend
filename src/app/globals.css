@@ -34,3 +34,19 @@
     background: linear-gradient(rgba(0,0,0,0.6), #19c9be);
   }
 }
+
+/* ----------------------------------------------------------------
+ * CORRECTED SCROLLBAR HIDING FIX: Targets both 'html' and 'body'
+ * ---------------------------------------------------------------- */
+
+/* Hide scrollbar for Webkit (Chrome, Safari, newer Edge) */
+html::-webkit-scrollbar, 
+body::-webkit-scrollbar {
+  display: none;
+}
+
+/* Hide scrollbar for IE, Edge, and Firefox (applied to both for robustness) */
+html, body {
+  -ms-overflow-style: none;  /* IE and Edge */
+  scrollbar-width: none;  /* Firefox */
+}
