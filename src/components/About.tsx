@@ -117,7 +117,7 @@ const About: React.FC = () => {
             </div>
             <div className="flex-shrink-0 md:w-1/3">
               <Image
-                src="/images/founder.png"
+                src="/images/founder2.png"
                 alt="Ishaan Katara, Founder"
                 width={400}
                 height={400}
