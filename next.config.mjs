@@ -1,6 +1,6 @@
 /** @type {import('next').NextConfig} */
 const nextConfig = {
-  reactCompiler: true,
+  
 
   // This is the image config we added
   images: {

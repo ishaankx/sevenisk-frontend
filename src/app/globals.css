@@ -50,3 +50,107 @@ html, body {
   -ms-overflow-style: none;  /* IE and Edge */
   scrollbar-width: none;  /* Firefox */
 }
+
+.code-snippet {
+  position: absolute;
+  /* We'll set top/left with GSAP, but center the origin */
+  top: 50%; 
+  left: 50%;
+  transform-origin: center;
+  
+  /* Styling to look like code */
+  color: #00A99D; /* Your text-brand-teal */
+  font-family: 'Fira Code', 'Roboto Mono', monospace; /* Use a mono font */
+  font-size: 0.8rem;
+  padding: 2px 6px;
+  
+  /* Glassmorphism effect */
+  border-radius: 4px;
+  background: rgba(0, 0, 0, 0.3);
+  backdrop-filter: blur(2px);
+  border: 1px solid rgba(0, 169, 157, 0.3); /* Teal border */
+  
+  white-space: nowrap; /* Prevent line breaks */
+  
+  /* Start hidden, GSAP will show them */
+  opacity: 0; 
+  /* NEW: Performance optimization for 3D animation */
+  will-change: transform;
+}
+
+.tech-scroller {
+  /* This is the "window" */
+  width: 100%;
+  overflow: hidden;
+  cursor: grab; /* NEW: Indicate to the user it's draggable */
+  user-select: none; /* NEW: Prevent text selection during drag */
+  /* UPDATED: Widened visibility from 10%/90% to 5%/95% */
+  -webkit-mask-image: linear-gradient(
+    to right,
+    transparent 0%,
+    black 50%,
+    black 50%,
+    transparent 100%
+  );
+  mask-image: linear-gradient(
+    to right,
+    transparent 0%,
+    black 50%,
+    black 50%,
+    transparent 100%
+  );
+}
+
+.tech-scroller:active {
+    cursor: grabbing; /* NEW: Change cursor while dragging */
+}
+
+/* (The rest of these styles are the same and correct) */
+.tech-scroller-inner {
+  display: flex;
+  gap: 1.5rem; /* 24px */
+  width: max-content;
+  will-change: transform;
+}
+
+.tech-scroller-item {
+  flex-shrink: 0;
+  display: flex;
+  align-items: center;
+  gap: 0.75rem; /* 12px */
+  padding: 0.75rem 1.25rem; /* 12px 20px */
+  
+  /* Initial state: subtle border and background */
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  background: rgba(255, 255, 255, 0.05);
+  backdrop-filter: blur(4px);
+  border-radius: 0.75rem; /* 12px */
+  font-size: 0.875rem; /* 14px */
+  font-weight: 500;
+  color: #E5E7EB; /* gray-200 */
+  
+  /* 🌟 ADDED: Ensure smooth transition for the glow effect 🌟 */
+  box-shadow: 0 0 0 rgba(0, 169, 157, 0); /* Initial shadow is invisible */
+  transition: all 0.3s ease-in-out; 
+}
+
+.tech-scroller-item:hover {
+  /* Retained existing background change */
+  background: rgba(255, 255, 255, 0.15); 
+  
+  /* 🌟 ADDED: Neon Glow Effect 🌟 */
+  /* Using the teal color (#00A99D) for the glow */
+  box-shadow: 
+    /* Inner/Tight Glow */
+    0 0 10px rgba(0, 169, 157, 0.6), 
+    /* Outer/Diffused Glow (the "neon halo") */
+    0 0 25px rgba(0, 169, 157, 0.4); 
+  
+  /* Optional: Make the border itself the theme color */
+  border-color: #00d9ca; 
+}
+
+.tech-scroller-item-icon {
+  width: 1.5rem; /* 24px */
+  height: 1.5rem; /* 24px */
+}
