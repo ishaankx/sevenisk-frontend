@@ -57,28 +57,27 @@ html, body {
 
 .code-snippet {
   position: absolute;
-  /* We'll set top/left with GSAP, but center the origin */
   top: 50%; 
   left: 50%;
   transform-origin: center;
   
   /* Styling to look like code */
   color: #00A99D; /* Your text-brand-teal */
-  font-family: 'Fira Code', 'Roboto Mono', monospace; /* Use a mono font */
+  font-family: 'Fira Code', 'Roboto Mono', monospace; 
   font-size: 0.8rem;
-  padding: 2px 6px;
+  
+  /* UPDATED: Make it a "pill" shape */
+  font-size: 0.8rem;
+  padding: 4px 12px;
+  border-radius: 9999px;/* This makes it curved */
   
   /* Glassmorphism effect */
-  border-radius: 4px;
   background: rgba(0, 0, 0, 0.3);
   backdrop-filter: blur(2px);
-  border: 1px solid rgba(0, 169, 157, 0.3); /* Teal border */
+  border: 1px solid rgba(0, 169, 157, 0.3);
   
   white-space: nowrap; /* Prevent line breaks */
-  
-  /* Start hidden, GSAP will show them */
   opacity: 0; 
-  /* NEW: Performance optimization for 3D animation */
   will-change: transform;
 }
 
@@ -214,4 +213,13 @@ html, body {
   color: transparent;
   color: #00FFF0; /* Your brand-teal */
   text-shadow: 0 0 12px rgba(0, 255, 240, 0.3);
+}
+
+#tsparticles {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  z-index: -1;
 }

@@ -1,3 +1,5 @@
+// src/app/layout.tsx
+
 import type { Metadata } from 'next';
 import { Poppins } from 'next/font/google';
 import { Toaster } from 'react-hot-toast';
@@ -9,6 +11,9 @@ import './globals.css';
 import { config } from '@fortawesome/fontawesome-svg-core';
 import '@fortawesome/fontawesome-svg-core/styles.css';
 config.autoAddCss = false;
+
+// NEW: Import the smooth scroll component
+import SmoothScroll from '@/components/SmoothScroll';
 
 const poppins = Poppins({
   subsets: ['latin'],
@@ -36,10 +41,13 @@ export default function RootLayout({
   return (
     <html lang="en">
       <body className={poppins.className}>
-        <Toaster position="top-right" />
-        <Navbar />
-        <main>{children}</main>
-        <Footer />
+        {/* NEW: Wrap all body content in SmoothScroll */}
+        <SmoothScroll>
+          <Toaster position="top-right" />
+          <Navbar />
+          <main>{children}</main>
+          <Footer />
+        </SmoothScroll>
       </body>
     </html>
   );

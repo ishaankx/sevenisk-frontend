@@ -8,10 +8,16 @@ import Image from 'next/image';
 import CVModal from '@/components/CVModal'; // Adjusted path
 import { gsap } from 'gsap';
 import { ScrollTrigger } from 'gsap/dist/ScrollTrigger';
-// NEW: Import the typewriter component
 import Typewriter from 'typewriter-effect';
 
+// NEW: Import social icons
+import { FaLinkedin, FaGithub, FaXTwitter, FaEnvelope } from 'react-icons/fa6';
+import Link from 'next/link';
+
 gsap.registerPlugin(ScrollTrigger);
+
+// NEW: Lazily import the 3D Model component
+const ParticlesBackground = lazy(() => import('@/components/ParticlesBackground'));
 
 // --- Tab Button Component (Copied from About.tsx) ---
 type Tab = 'skills' | 'expereince' | 'education';
@@ -36,14 +42,37 @@ const TabButton: React.FC<TabButtonProps> = ({ active, selectTab, children }) =>
   );
 };
 
-// --- Code Snippets (Copied from About.tsx) ---
-const codeSnippets = [
-  { text: '<Component />', x: 0, y: -100, z: 130 },
-  { text: "const dev = 'Ishaan';", x: 0, y: 0, z: -140 },
-  { text: 'gsap.to(...)', x: 130, y: 40, z: 0 },
-  { text: 'useEffect()', x: -130, y: 80, z: 0 },
-  { text: 'await prisma.find()', x: 80, y: 120, z: 90 },
-  { text: "type Wizard = 'true';", x: -90, y: -60, z: -100 },
+// --- YOUR NEW Code Snippets Logic ---
+const singleLineOfCode = "const{dev}=sevenisk; await.getProfile('ishaan'); model.predict(input); docker.build(sevenisk); kubectl-apply-f;";
+const snippetChunks = singleLineOfCode.split(' '); // Split by space
+
+const numSnippets = snippetChunks.length;
+const radius = 120; // The width of the spiral
+const minY = -150; // The bottom of the spiral
+const maxY = 150; // The top of the spiral
+const yRange = maxY - minY; // Total height
+const yStep = yRange / numSnippets; // Vertical space between snippets
+
+const codeSnippets = Array.from({ length: numSnippets }).map((_, i) => {
+  const angle = (i / numSnippets) * Math.PI * 2; // Angle in radians
+  const yPos = maxY - i * yStep; // Staggered Y position
+  
+  return {
+    text: snippetChunks[i], // Use the word from the single line
+    x: Math.cos(angle) * radius,
+    y: yPos,
+    z: Math.sin(angle) * radius,
+    angle: angle, // <-- We still store the angle
+  };
+});
+
+
+// NEW: Social Links Array
+const socialLinks = [
+  { name: 'LinkedIn', icon: FaLinkedin, href: 'https://www.linkedin.com/in/ishaan-katara-399a83233/' },
+  { name: 'GitHub', icon: FaGithub, href: 'https://github.com/ishaankx' },
+  { name: 'Email', icon: FaEnvelope, href: 'mailto:ishaankatara@gmail.com' },
+  { name: 'Twitter', icon: FaXTwitter, href: 'https://x.com/ishaankatara' },
 ];
 
 // --- Main Page Component ---
@@ -51,9 +80,7 @@ const AboutFounderPage: React.FC = () => {
   const [tab, setTab] = useState<Tab>('skills');
   const [isModalOpen, setIsModalOpen] = useState<boolean>(false);
   
-  // NEW: State for the typewriter prefix
   const [prefix, setPrefix] = useState("I am a");
-
 
   // Refs for About Founder (Wizard Effect)
   const mainContainerRef = useRef<HTMLDivElement | null>(null);
@@ -109,26 +136,44 @@ const AboutFounderPage: React.FC = () => {
         y: -15, duration: 2.5, ease: 'power1.inOut',
         yoyo: true, repeat: -1,
       }, 0.5);
+      
+      // This is the "swirl" (unchanged)
       tlFounder.to(orbitWrapper, {
         rotateY: 360, duration: 20,
         ease: 'none', repeat: -1,
       }, 0.5);
-      snippets.forEach((snippet) => {
-        const s = codeSnippets[snippets.indexOf(snippet)];
-        gsap.set(snippet, { x: s.x, y: s.y, z: s.z });
+      
+      const yWrap = gsap.utils.wrap(minY, maxY); // Creates a wrap function
+      const spiralDuration = 10; // 10 seconds to travel the full height
+
+      snippets.forEach((snippet, i) => {
+        const s = codeSnippets[i];
+        if (!s) return; // Safety check
+        
+        // --- Set initial position AND rotation ---
+        gsap.set(snippet, { 
+          x: s.x, 
+          y: s.y, 
+          z: s.z,
+          // This rotates the snippet to "face the center"
+          rotateY: (s.angle * (180 / Math.PI)) - 90 
+        });
+        
+        // Fade in
         tlFounder.to(snippet, {
           opacity: 0.9, duration: 1, ease: 'power2.out',
         }, 0.8);
+        
+        // --- Continuous Upward Spiral Animation (Unchanged) ---
         gsap.to(snippet, {
-          x: `+=${gsap.utils.random(-20, 20)}`,
-          y: `+=${gsap.utils.random(-20, 20)}`,
-          z: `+=${gsap.utils.random(-25, 25)}`,
-          rotateX: `+=${gsap.utils.random(-45, 45)}`,
-          rotateY: `+=${gsap.utils.random(-45, 45)}`,
-          duration: gsap.utils.random(3, 5),
-          yoyo: true, repeat: -1,
-          ease: 'sine.inOut',
-          delay: gsap.utils.random(0, 2)
+          y: `-=${yRange}`, // Move up by the total height (300px)
+          duration: spiralDuration,
+          ease: 'none',
+          repeat: -1,
+          delay: -(spiralDuration * (s.y - minY) / yRange),
+          modifiers: {
+            y: (y) => yWrap(parseFloat(y))
+          }
         });
       });
 
@@ -152,23 +197,28 @@ const AboutFounderPage: React.FC = () => {
 
   return (
     <>
-      <div className="py-20 text-dark-text pt-32"> {/* Added pt-32 for navbar */}
-        <div className="container mx-auto px-5">
-          {/* ----- ABOUT FOUNDER Section ----- */}
-          <div className="flex flex-col-reverse md:flex-row gap-12 md:gap-16 items-start">
+      {/* --- NEW: HERO SECTION --- */}
+      {/* UPDATED: Added relative and z-10 for parallax */}
+      <div className="relative z-10 w-full min-h-screen flex items-center pt-32 pb-20 text-dark-text">
+        
+        {/* Particle Background */}
+        <Suspense fallback={<div className="absolute inset-0 bg-dark-bg z-0" />}>
+          <ParticlesBackground />
+        </Suspense>
 
-            {/* Founder Text & Tabs */}
+        {/* This container holds the content and sits *above* the particles */}
+        <div className="container mx-auto px-5 z-10 relative">
+          <div className="flex flex-col md:flex-row gap-12 md:gap-16 items-center">
+            
+            {/* --- Left Side (Text & Socials) --- */}
             <div className="flex-1">
               <h1 className="text-4xl md:text-5xl font-semibold text-white">Hey, I&apos;m
                 <span className="text-gradient-neon"> Ishaan Katara</span>
               </h1>
               
-              {/* --- UPDATED: Typewriter Section --- */}
-              <h2 className="text-2xl md:text-3xl font-medium mt-4 mb-8 h-10 md:h-auto typewriter-gradient">
-                {/* 1. Apply 'text-dark-text' here to be overridden by CSS */}
-                <span className="text-dark-text mr-2 ">{prefix}</span>
-                {/* 2. Remove all classes from this span */}
-                <span className="font-roboto-mono font-semibold"> 
+              <h2 className="text-2xl md:text-3xl font-semibold mt-4 mb-8 h-10 md:h-auto typewriter-gradient font-roboto-mono">
+                <span className="text-dark-text mr-2">{prefix}</span>
+                <span> 
                   <Typewriter
                     options={{
                       loop: true,
@@ -176,15 +226,8 @@ const AboutFounderPage: React.FC = () => {
                     }}
                     onInit={(typewriter) => {
                       typewriter
-
                         .callFunction(() => { setPrefix("I am a"); })
                         .typeString('Machine Learning Engineer')
-                        .pauseFor(1500)
-                        .deleteAll()
-
-                        // The special case
-                        .callFunction(() => { setPrefix("I am the"); })
-                        .typeString('Founder of SevenIsK')
                         .pauseFor(1500)
                         .deleteAll()
                         
@@ -213,17 +256,94 @@ const AboutFounderPage: React.FC = () => {
                         .pauseFor(1500)
                         .deleteAll()
 
+                        .callFunction(() => { setPrefix("I am the"); })
+                        .typeString('Founder of SevenIsK')
+                        .pauseFor(1500)
+                        .deleteAll()
+                        
                         .start();
                     }}
                   />
                 </span>
               </h2>
-              {/* --- End Typewriter Section --- */}
-              <p className="text-lg text-justify mb-6">
-                Ishaan Katara, the founder of <strong>SevenIsK</strong>, is a Computer Science Engineer and technology innovator passionate about building intelligent and secure software systems. With hands-on experience across <strong>AI Engineering</strong>, <strong>Software Development</strong>, and <strong>DevSecOps</strong>, Ishaan has led projects that bridge automation, machine learning, and scalable backend architectures. He has previously contributed to organizations like the <strong>Ministry of Electronics and Information Technology</strong> and <strong>Sustainivo</strong>, developing end-to-end MLOps pipelines, secure microservices, and AI-driven solutions. Through SevenIsK, Ishaan aims to drive innovation by creating advanced, human-centric technologies that combine <strong>intelligence, efficiency, and reliability</strong>.
-              </p>
+              
+              {/* --- NEW: Social Icons --- */}
+              <div className="flex flex-row gap-6 mt-8">
+                {socialLinks.map((link) => (
+                  <Link
+                    key={link.name}
+                    href={link.href}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="text-dark-text text-3xl transition-all duration-300 hover:text-brand-teal hover:scale-110"
+                    aria-label={link.name}
+                  >
+                    <link.icon />
+                  </Link>
+                ))}
+              </div>
+            </div>
 
-              {/* React Tabs */}
+            {/* --- Right Side (Wizard Effect) --- */}
+            <div className="shrink-0 w-full max-w-sm md:w-1/3 md:max-w-none">
+              <div style={{ perspective: '1000px' }}>
+                <div
+                  ref={mainContainerRef}
+                  style={{ opacity: 0, transformStyle: 'preserve-3d' }}
+                  className="relative rounded-lg w-full max-w-[270px] md:max-w-full mx-auto"
+                >
+                  <div
+                    ref={imageElRef}
+                    className="rounded-lg shadow-2xl"
+                    style={{ transformStyle: 'preserve-3d' }}
+                  >
+                    <Image
+                      src="/images/founder2.png"
+                      alt="Ishaan Katara, Founder"
+                      width={400}
+                      height={400}
+                      className="rounded-lg w-full h-auto"
+                    />
+                  </div>
+                  <div
+                    ref={snippetWrapperRef}
+                    className="absolute inset-0"
+                    style={{ transformStyle: 'preserve-3d' }}
+                  >
+                    <div
+                      ref={snippetTiltWrapperRef}
+                      className="absolute inset-0"
+                      style={{ transformStyle: 'preserve-3d' }}
+                    >
+                      {codeSnippets.map((snippet, i) => (
+                        <span key={`${snippet.text}-${i}`} className="code-snippet">
+                          {snippet.text}
+                        </span>
+                      ))}
+                    </div>
+                  </div>
+                </div>
+              </div>
+              <p className="text-center mt-4 text-dark-text">Ishaan Katara, Founder & Developer</p>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      {/* --- UPDATED: ABOUT ME SECTION --- */}
+      {/* UPDATED: Added relative and z-10 for parallax */}
+      <div className="relative z-10 py-20 text-dark-text bg-dark-bg">
+        <div className="container mx-auto px-5">
+          {/* UPDATED: Changed from max-w-4xl to two-column layout */}
+          <div className="flex flex-col md:flex-row gap-12 md:gap-16">
+            
+            {/* --- Left Column (Tabs & CV) --- */}
+            <div className="md:w-1/3">
+              <h2 className="text-3xl md:text-4xl font-semibold text-white text-left mb-8">
+                About <span className="text-gradient-neon">Me</span>
+              </h2>
+              
+              {/* The Tabs and CV Button */}
               <div className="flex flex-row mt-8 mb-4">
                 <TabButton selectTab={() => setTab('skills')} active={tab === 'skills'}>
                   Skills
@@ -268,51 +388,18 @@ const AboutFounderPage: React.FC = () => {
               </button>
             </div>
 
-            {/* Founder Image (Wizard Effect) */}
-            <div className="shrink-0 md:w-1D/3">
-              <div style={{ perspective: '1000px' }}>
-                <div
-                  ref={mainContainerRef}
-                  style={{ opacity: 0, transformStyle: 'preserve-3d' }}
-                  className="relative rounded-lg w-full max-w-[270px] md:max-w-full mx-auto"
-                >
-                  <div
-                    ref={imageElRef}
-                    className="rounded-lg shadow-2xl"
-                    style={{ transformStyle: 'preserve-3d' }}
-                  >
-                    <Image
-                      src="/images/founder2.png"
-                      alt="Ishaan Katara, Founder"
-                      width={400}
-                      height={400}
-                      className="rounded-lg w-full h-auto"
-                    />
-                  </div>
-                  <div
-                    ref={snippetWrapperRef}
-                    className="absolute inset-0"
-                    style={{ transformStyle: 'preserve-3d' }}
-                  >
-                    <div
-                      ref={snippetTiltWrapperRef}
-                      className="absolute inset-0"
-                      style={{ transformStyle: 'preserve-3d' }}
-                    >
-                      {codeSnippets.map((snippet) => (
-                        <span key={snippet.text} className="code-snippet">
-                          {snippet.text}
-                        </span>
-                      ))}
-                    </div>
-                  </div>
-                </div>
-              </div>
-              <p className="text-center mt-4 text-dark-text">Ishaan Katara, Founder & Developer</p>
+            {/* --- Right Column (Paragraph) --- */}
+            <div className="md:w-2/3 md:pt-20">
+              {/* The Paragraph with highlights */}
+              <p className="text-lg text-justify leading-relaxed">
+                Ishaan Katara, the founder of <strong className="text-white">SevenIsK</strong>, is a <span className="text-brand-teal font-medium">Computer Science Engineer</span> and technology innovator passionate about building intelligent and secure software systems. With hands-on experience across <span className="text-brand-teal font-medium">AI Engineering</span>, <span className="text-brand-teal font-medium">Software Development</span>, and <span className="text-brand-teal font-medium">DevSecOps</span>, Ishaan has led projects that bridge automation, machine learning, and scalable backend architectures. He has previously contributed to organizations like the <strong className="text-white">Ministry of Electronics and Information Technology</strong> and <strong className="text-white">Sustainivo</strong>, developing end-to-end MLOps pipelines, secure microservices, and AI-driven solutions. Through SevenIsK, Ishaan aims to drive innovation by creating advanced, human-centric technologies that combine <span className="text-brand-teal font-medium">intelligence, efficiency, and reliability</span>.
+              </p>
             </div>
+
           </div>
         </div>
       </div>
+      
       <CVModal isOpen={isModalOpen} onClose={() => setIsModalOpen(false)} />
     </>
   );
