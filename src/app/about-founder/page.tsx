@@ -1,5 +1,3 @@
-// src/app/about-founder/page.tsx
-
 'use client';
 
 // All the imports and logic from the "About Founder" section
@@ -13,8 +11,6 @@ import Typewriter from 'typewriter-effect';
 // NEW: Import social icons
 import { FaLinkedin, FaGithub, FaXTwitter, FaEnvelope } from 'react-icons/fa6';
 import Link from 'next/link';
-
-gsap.registerPlugin(ScrollTrigger);
 
 // NEW: Lazily import the 3D Model component
 const ParticlesBackground = lazy(() => import('@/components/ParticlesBackground'));
@@ -88,6 +84,16 @@ const AboutFounderPage: React.FC = () => {
   const snippetWrapperRef = useRef<HTMLDivElement | null>(null);
   const snippetTiltWrapperRef = useRef<HTMLDivElement | null>(null);
 
+  // --- ADDED: Refs for Hero Section Parallax ---
+  const heroSectionRef = useRef<HTMLDivElement | null>(null);
+  const heroLeftColRef = useRef<HTMLDivElement | null>(null);
+  const heroRightColRef = useRef<HTMLDivElement | null>(null);
+
+  // Refs for About Me Parallax
+  const aboutMeSectionRef = useRef<HTMLDivElement | null>(null);
+  const aboutMeLeftColRef = useRef<HTMLDivElement | null>(null);
+  const aboutMeRightColRef = useRef<HTMLDivElement | null>(null);
+
   useEffect(() => {
     let snippets: HTMLElement[] = [];
     const mainContainer = mainContainerRef.current;
@@ -95,7 +101,7 @@ const AboutFounderPage: React.FC = () => {
     const orbitWrapper = snippetWrapperRef.current;
     const tiltWrapper = snippetTiltWrapperRef.current;
 
-    // --- Mouse Listeners for Wizard Effect ---
+    // --- Mouse Listeners for Wizard Effect (No Change) ---
     const handleFounderMouseMove = (e: MouseEvent) => {
       const { clientX, clientY } = e;
       if (!mainContainer) return;
@@ -137,36 +143,31 @@ const AboutFounderPage: React.FC = () => {
         yoyo: true, repeat: -1,
       }, 0.5);
       
-      // This is the "swirl" (unchanged)
       tlFounder.to(orbitWrapper, {
         rotateY: 360, duration: 20,
         ease: 'none', repeat: -1,
       }, 0.5);
       
-      const yWrap = gsap.utils.wrap(minY, maxY); // Creates a wrap function
-      const spiralDuration = 10; // 10 seconds to travel the full height
+      const yWrap = gsap.utils.wrap(minY, maxY); 
+      const spiralDuration = 10; 
 
       snippets.forEach((snippet, i) => {
         const s = codeSnippets[i];
-        if (!s) return; // Safety check
+        if (!s) return; 
         
-        // --- Set initial position AND rotation ---
         gsap.set(snippet, { 
           x: s.x, 
           y: s.y, 
           z: s.z,
-          // This rotates the snippet to "face the center"
           rotateY: (s.angle * (180 / Math.PI)) - 90 
         });
         
-        // Fade in
         tlFounder.to(snippet, {
           opacity: 0.9, duration: 1, ease: 'power2.out',
         }, 0.8);
         
-        // --- Continuous Upward Spiral Animation (Unchanged) ---
         gsap.to(snippet, {
-          y: `-=${yRange}`, // Move up by the total height (300px)
+          y: `-=${yRange}`, 
           duration: spiralDuration,
           ease: 'none',
           repeat: -1,
@@ -183,6 +184,60 @@ const AboutFounderPage: React.FC = () => {
       });
     }
 
+    // --- ADDED: PARALLAX FOR HERO SECTION ---
+    const heroSection = heroSectionRef.current;
+    const heroLeft = heroLeftColRef.current;
+    const heroRight = heroRightColRef.current;
+
+    if (heroSection && heroLeft && heroRight) {
+      gsap.timeline({
+        scrollTrigger: {
+          trigger: heroSection,
+          start: 'top top', // Start when the top of the hero hits the top of the viewport
+          end: 'bottom top', // End when the bottom of the hero hits the top of the viewport
+          scrub: 1,
+        }
+      })
+      .to([heroLeft, heroRight], {
+        opacity: 0,
+        scale: 0.8,
+        y: -100, // Move up as it shrinks
+        ease: 'none'
+      }, 0);
+    }
+
+    // --- MODIFIED: PARALLAX FOR ABOUT ME SECTION ---
+    const aboutSection = aboutMeSectionRef.current;
+    const leftCol = aboutMeLeftColRef.current;
+    const rightCol = aboutMeRightColRef.current;
+
+    if (aboutSection && leftCol && rightCol) {
+      // Set initial state: faded out, scaled down, and slightly lower
+      gsap.set(leftCol, { y: 50, opacity: 0, scale: 0.9 });
+      gsap.set(rightCol, { y: 50, opacity: 0, scale: 0.9 });
+      
+      gsap.timeline({
+        scrollTrigger: {
+          trigger: aboutSection,
+          start: 'top 90%', // Start animation when 90% of the section is visible
+          end: 'top 40%',   // End when 40% of the section is visible
+          scrub: 1, // Smoothly animate on scroll
+        }
+      })
+      .to(leftCol, {
+        y: -50, // Final Y position (moves up faster)
+        opacity: 1,
+        scale: 1,
+        ease: 'none'
+      }, 0)
+      .to(rightCol, {
+        y: -20, // Final Y position (moves up slower for parallax)
+        opacity: 1,
+        scale: 1,
+        ease: 'none'
+      }, 0);
+    }
+
     // --- Cleanup Function ---
     return () => {
       if (mainContainer) {
@@ -190,7 +245,10 @@ const AboutFounderPage: React.FC = () => {
         mainContainer.removeEventListener('mouseleave', handleFounderMouseLeave);
       }
       gsap.killTweensOf([
-        mainContainer, image, orbitWrapper, tiltWrapper, ...snippets
+        mainContainer, image, orbitWrapper, tiltWrapper, ...snippets,
+        // --- ADDED: Cleanup for new parallax elements ---
+        heroSection, heroLeft, heroRight,
+        aboutSection, leftCol, rightCol 
       ]);
     };
   }, []); // Run once on component mount
@@ -198,8 +256,10 @@ const AboutFounderPage: React.FC = () => {
   return (
     <>
       {/* --- NEW: HERO SECTION --- */}
-      {/* UPDATED: Added relative and z-10 for parallax */}
-      <div className="relative z-10 w-full min-h-screen flex items-center pt-32 pb-20 text-dark-text">
+      <div 
+        ref={heroSectionRef} // <-- ADDED REF
+        className="relative z-10 w-full min-h-screen flex items-center pt-32 pb-20 text-dark-text"
+      >
         
         {/* Particle Background */}
         <Suspense fallback={<div className="absolute inset-0 bg-dark-bg z-0" />}>
@@ -211,7 +271,7 @@ const AboutFounderPage: React.FC = () => {
           <div className="flex flex-col md:flex-row gap-12 md:gap-16 items-center">
             
             {/* --- Left Side (Text & Socials) --- */}
-            <div className="flex-1">
+            <div ref={heroLeftColRef} className="flex-1"> {/* <-- ADDED REF */}
               <h1 className="text-4xl md:text-5xl font-semibold text-white">Hey, I&apos;m
                 <span className="text-gradient-neon"> Ishaan Katara</span>
               </h1>
@@ -285,7 +345,7 @@ const AboutFounderPage: React.FC = () => {
             </div>
 
             {/* --- Right Side (Wizard Effect) --- */}
-            <div className="shrink-0 w-full max-w-sm md:w-1/3 md:max-w-none">
+            <div ref={heroRightColRef} className="shrink-0 w-full max-w-sm md:w-1/3 md:max-w-none"> {/* <-- ADDED REF */}
               <div style={{ perspective: '1000px' }}>
                 <div
                   ref={mainContainerRef}
@@ -331,14 +391,18 @@ const AboutFounderPage: React.FC = () => {
       </div>
 
       {/* --- UPDATED: ABOUT ME SECTION --- */}
-      {/* UPDATED: Added relative and z-10 for parallax */}
-      <div className="relative z-10 py-20 text-dark-text bg-dark-bg">
+      <div 
+        ref={aboutMeSectionRef} // (Ref was already here, correct)
+        className="relative z-10 py-20 text-dark-text bg-dark-bg"
+      >
         <div className="container mx-auto px-5">
-          {/* UPDATED: Changed from max-w-4xl to two-column layout */}
           <div className="flex flex-col md:flex-row gap-12 md:gap-16">
             
             {/* --- Left Column (Tabs & CV) --- */}
-            <div className="md:w-1/3">
+            <div 
+              ref={aboutMeLeftColRef} // (Ref was already here, correct)
+              className="md:w-1/3"
+            >
               <h2 className="text-3xl md:text-4xl font-semibold text-white text-left mb-8">
                 About <span className="text-gradient-neon">Me</span>
               </h2>
@@ -389,7 +453,10 @@ const AboutFounderPage: React.FC = () => {
             </div>
 
             {/* --- Right Column (Paragraph) --- */}
-            <div className="md:w-2/3 md:pt-20">
+            <div 
+              ref={aboutMeRightColRef} // (Ref was already here, correct)
+              className="md:w-2/3 md:pt-20"
+            >
               {/* The Paragraph with highlights */}
               <p className="text-lg text-justify leading-relaxed">
                 Ishaan Katara, the founder of <strong className="text-white">SevenIsK</strong>, is a <span className="text-brand-teal font-medium">Computer Science Engineer</span> and technology innovator passionate about building intelligent and secure software systems. With hands-on experience across <span className="text-brand-teal font-medium">AI Engineering</span>, <span className="text-brand-teal font-medium">Software Development</span>, and <span className="text-brand-teal font-medium">DevSecOps</span>, Ishaan has led projects that bridge automation, machine learning, and scalable backend architectures. He has previously contributed to organizations like the <strong className="text-white">Ministry of Electronics and Information Technology</strong> and <strong className="text-white">Sustainivo</strong>, developing end-to-end MLOps pipelines, secure microservices, and AI-driven solutions. Through SevenIsK, Ishaan aims to drive innovation by creating advanced, human-centric technologies that combine <span className="text-brand-teal font-medium">intelligence, efficiency, and reliability</span>.

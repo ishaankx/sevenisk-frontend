@@ -10,9 +10,6 @@
 
 /* 3. Define your base styles. */
 @layer base {
-  html {
-    scroll-behavior: smooth;
-  }
   body {
     @apply bg-dark-bg text-white font-poppins;
   }

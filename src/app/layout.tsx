@@ -1,19 +1,16 @@
 // src/app/layout.tsx
-
 import type { Metadata } from 'next';
 import { Poppins } from 'next/font/google';
 import { Toaster } from 'react-hot-toast';
 import Navbar from '@/components/Navbar';
 import Footer from '@/components/Footer';
 import './globals.css';
+import SmoothScroll from "@/components/SmoothScroll"; // 1. IMPORT IT
 
 // Font Awesome config
 import { config } from '@fortawesome/fontawesome-svg-core';
 import '@fortawesome/fontawesome-svg-core/styles.css';
 config.autoAddCss = false;
-
-// NEW: Import the smooth scroll component
-import SmoothScroll from '@/components/SmoothScroll';
 
 const poppins = Poppins({
   subsets: ['latin'],
@@ -24,7 +21,6 @@ const poppins = Poppins({
 export const metadata: Metadata = {
   title: 'SevenIsK',
   description: 'SevenIsK - We build high-quality software solutions.',
-  // Favicon links from your index.html
   icons: [
     { rel: 'apple-touch-icon', sizes: '180x180', url: '/favicon_io/apple-touch-icon.png' },
     { rel: 'icon', type: 'image/png', sizes: '32x32', url: '/favicon_io/favicon-32x32.png' },
@@ -41,7 +37,7 @@ export default function RootLayout({
   return (
     <html lang="en">
       <body className={poppins.className}>
-        {/* NEW: Wrap all body content in SmoothScroll */}
+        {/* 2. WRAP YOUR CONTENT */}
         <SmoothScroll>
           <Toaster position="top-right" />
           <Navbar />

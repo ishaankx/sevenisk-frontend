@@ -1,33 +1,48 @@
 // src/components/SmoothScroll.tsx
+"use client";
 
-'use client';
+import { ReactNode, useEffect } from "react";
+import Lenis from "@studio-freight/lenis";
+import { gsap } from 'gsap';
+import { ScrollTrigger } from 'gsap/ScrollTrigger';
 
-import React, { useEffect } from 'react';
-import Lenis from '@studio-freight/lenis';
+// 1. Register the GSAP plugin ONCE here.
+gsap.registerPlugin(ScrollTrigger);
 
-const SmoothScroll: React.FC<{ children: React.ReactNode }> = ({ children }) => {
+export default function SmoothScroll({ children }: { children: ReactNode }) {
   useEffect(() => {
-    // Initialize Lenis
     const lenis = new Lenis({
-      lerp: 0.1, // Controls the "smoothness". 0.1 is a good default.
+      duration: 1.2,
+      easing: (t: number) => 1 - Math.pow(1 - t, 3), // easeOutCubic
       smoothWheel: true,
     });
 
-    // This function will run on every animation frame
-    function raf(time: number) {
-      lenis.raf(time);
-      requestAnimationFrame(raf);
-    }
+    // ----- GSAP + Lenis Integration -----
 
-    requestAnimationFrame(raf);
+    // 2. Tell ScrollTrigger to use Lenis's scroll event
+    lenis.on('scroll', ScrollTrigger.update);
 
-    // Cleanup
+    // 3. Define the ticker callback function WITH a persistent reference
+    const tickerCallback = (time: number) => {
+      // lenis.raf expects milliseconds, GSAP ticker provides seconds
+      lenis.raf(time * 1000);
+    };
+
+    // 4. Add the callback to GSAP's ticker
+    gsap.ticker.add(tickerCallback);
+    gsap.ticker.lagSmoothing(0);
+
+    // ------------------------------------
+
+    lenis.scrollTo(0, { immediate: true });
+
+    // Cleanup on component unmount
     return () => {
+      // 5. Use the SAME function reference to remove the ticker
+      gsap.ticker.remove(tickerCallback);
       lenis.destroy();
     };
   }, []);
 
   return <>{children}</>;
-};
-
-export default SmoothScroll;
+}
