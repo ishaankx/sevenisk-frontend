@@ -38,7 +38,7 @@ const Contact: React.FC = () => {
         <div className="flex flex-col md:flex-row gap-12">
           {/* Left Column */}
           <div className="contact-left md:w-1/3">
-            <h1 className="sub-title">Contact Us</h1>
+            <h1 className="sub-title text-gradient-neon">Contact Us</h1>
             <p className="mt-6 flex items-center">
               <FontAwesomeIcon icon={faPaperPlane} className="text-brand-teal-hover text-xl mr-4" />
               thesevenisk@gmail.com

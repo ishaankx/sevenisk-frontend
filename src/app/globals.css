@@ -4,6 +4,10 @@
 /* 2. Import all of Tailwind v4. */
 @import "tailwindcss";
 
+@import url('https://fonts.googleapis.com/css2?family=Roboto+Mono:wght@400;500;600&display=swap');
+
+/* ... rest of your globals.css file ... */
+
 /* 3. Define your base styles. */
 @layer base {
   html {
@@ -153,4 +157,61 @@ html, body {
 .tech-scroller-item-icon {
   width: 1.5rem; /* 24px */
   height: 1.5rem; /* 24px */
+}
+
+/* --- Add this to the bottom of src/app/globals.css --- */
+
+.text-gradient-neon {
+  /* 1. UPDATED: The Gradient (darker shade to light neon, bottom-to-up) */
+  background-image: linear-gradient(
+    to top, 
+    #2cba96 20%,  /* Your 'brand-teal-hover' (darkest) at the bottom */
+    #00FFF0 80%   /* Your 'brand-teal' (lightest) at the top */
+  );
+  
+  /* 2. Clip the background to the text (unchanged) */
+  -webkit-background-clip: text;
+  background-clip: text;
+  
+  /* 3. Make the text color transparent (unchanged) */
+  color: transparent;
+  
+  /* 4. Keep the Neon Glow (unchanged) */
+  text-shadow: 0 0 12px rgba(0, 255, 240, 0.3), 
+               0 0 30px rgba(0, 255, 240, 0.1);
+}
+
+/* --- Add this to the bottom of src/app/globals.css --- */
+
+.typewriter-gradient {
+  /* This ensures the prefix and typewriter stay on the same line */
+  display: flex;
+  align-items: center;
+}
+
+.typewriter-gradient .Typewriter__wrapper {
+  background-image: linear-gradient(
+    to top, 
+    #19c9be 20%,  /* 'brand-teal-hover' */
+    #00FFF0 80%   /* 'brand-teal' */
+  );
+  -webkit-background-clip: text;
+  background-clip: text;
+  color: transparent;
+  /* NO text-shadow here - this fixes the blur */
+}
+
+.Typewriter__cursor {
+  background-image: linear-gradient(
+    to top, 
+    #2cba96 20%,  /* Your 'brand-teal-hover' (darkest) at the bottom */
+    #00FFF0 80%   /* Your 'brand-teal' (lightest) at the top */
+  );
+
+  -webkit-background-clip: text;
+  background-clip: text;
+
+  color: transparent;
+  color: #00FFF0; /* Your brand-teal */
+  text-shadow: 0 0 12px rgba(0, 255, 240, 0.3);
 }

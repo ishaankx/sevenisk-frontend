@@ -37,7 +37,7 @@ const Portfolio: React.FC = () => {
   return (
     <div id="portfolio" className="py-20">
       <div className="container mx-auto px-5">
-        <h1 className="sub-title">Portfolio</h1>
+        <h1 className="sub-title text-gradient-neon">Portfolio</h1>
         <div className="grid md:grid-cols-3 gap-8 mt-12">
           {portfolioData.map((work, index) => (
             <div key={index} className="work rounded-lg relative overflow-hidden group">

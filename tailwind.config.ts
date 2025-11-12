@@ -1,3 +1,4 @@
+// In tailwind.config.ts
 import type { Config } from 'tailwindcss'
 import typography from '@tailwindcss/typography'
 
@@ -11,6 +12,7 @@ const config: Config = {
     extend: {
       fontFamily: {
         poppins: ['Poppins', 'sans-serif'],
+        'roboto-mono': ['"Roboto Mono"', 'monospace'], // <-- ADD THIS LINE
       },
       colors: {
         'brand-teal': '#00FFF0',
@@ -20,11 +22,9 @@ const config: Config = {
         'dark-card': '#262626',
         'dark-text': '#ababab',
       },
-      // --- HERE IS YOUR BACKGROUND IMAGE ---
       backgroundImage: {
         'hero-pattern': "url('/images/b.jpg')",
       },
-      // --- END OF BACKGROUND IMAGE ---
       height: {
         '100vh': '100vh',
       },

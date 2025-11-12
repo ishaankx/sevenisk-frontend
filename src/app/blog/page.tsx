@@ -29,7 +29,7 @@ export default async function BlogPage() {
   return (
     <div className="pt-32 pb-20 min-h-screen">
       <div className="container mx-auto px-5">
-        <h1 className="sub-title mb-12">The Blog</h1>
+        <h1 className="sub-title mb-12 text-gradient-neon">The Blog</h1>
         
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-8">
           {posts.map((post) => (

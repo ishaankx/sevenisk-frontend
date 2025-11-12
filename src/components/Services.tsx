@@ -257,7 +257,7 @@ const Services: React.FC = () => {
   return (
     <div id="services" className="py-20 bg-dark-bg">
       <div className="container mx-auto px-5">
-        <h1 className="sub-title">Services</h1>
+        <h1 className="sub-title text-gradient-neon">Services</h1>
         <div className="grid md:grid-cols-3 gap-8 mt-12">
           {servicesData.map((service, index) => (
             <div
