@@ -212,11 +212,109 @@ html, body {
   text-shadow: 0 0 12px rgba(0, 255, 240, 0.3);
 }
 
-#tsparticles {
-  position: fixed;
-  top: 0;
-  left: 0;
+.founder-tech-scroller {
+  width: 100%;
+  overflow: hidden;
+  cursor: grab;
+  user-select: none;
+  /* Add perspective for 3D flip */
+  perspective: 1000px;
+}
+
+.founder-tech-scroller:active {
+  cursor: grabbing;
+}
+
+.founder-tech-scroller-inner {
+  display: flex;
+  gap: 2rem; /* 32px gap */
+  width: max-content;
+  will-change: transform;
+}
+
+.founder-tech-card {
+  flex-shrink: 0;
+  /* --- MODIFIED: Responsive Card Size --- */
+  width: 110px;
+  height: 110px;
+  @apply md:w-[150px] md:h-[150px];
+  /* --- End MODIFIED --- */
+  position: relative;
+}
+
+.founder-tech-card-inner {
+  position: relative;
   width: 100%;
   height: 100%;
-  z-index: -1;
+  transition: transform 0.7s;
+  transform-style: preserve-3d;
+}
+
+/* This is the flip */
+.founder-tech-card:hover .founder-tech-card-inner {
+  transform: rotateY(180deg);
+}
+
+/* Shared styles for Front and Back */
+.founder-tech-card-front,
+.founder-tech-card-back {
+  position: absolute;
+  width: 100%;
+  height: 100%;
+  -webkit-backface-visibility: hidden;
+  backface-visibility: hidden;
+  
+  /* Re-using glassmorphism from .tech-scroller-item */
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  background: rgba(255, 255, 255, 0.05);
+  backdrop-filter: blur(4px);
+  border-radius: 0.75rem; /* 12px */
+  
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-direction: column;
+}
+
+/* Front: Just the big icon */
+.founder-tech-card-front {
+  /* text-6xl is 3.75rem, which is good */
+}
+
+/* Back: Flipped, with details */
+.founder-tech-card-back {
+  transform: rotateY(180deg);
+  /* --- MODIFIED: Responsive Padding --- */
+  padding: 0.5rem; /* 8px */
+  @apply md:p-4; /* 16px */
+  /* --- End MODIFIED --- */
+  justify-content: center; /* Center all content */
+  align-items: center;
+  gap: 0.25rem; /* 4px */
+  color: #E5E7EB; /* gray-200 */
+}
+
+.proficiency-bars {
+  display: flex;
+  gap: 4px;
+  width: 80%;
+  height: 6px; /* A bit slimmer */
+  /* --- MODIFIED: Responsive Margin --- */
+  margin-top: 4px;
+  @apply md:mt-2;
+  /* --- End MODIFIED --- */
+}
+
+.proficiency-bars span {
+  flex: 1;
+  height: 100%;
+  background: rgba(255, 255, 255, 0.2);
+  border-radius: 2px;
+  transition: all 0.3s;
+}
+
+/* This class makes the bar glow */
+.proficiency-bars span.active {
+  background: #00FFF0; /* brand-teal */
+  box-shadow: 0 0 8px rgba(0, 255, 240, 0.5);
 }
