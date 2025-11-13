@@ -398,8 +398,8 @@ const AboutFounderPage: React.FC = () => {
         // --- ⭐️ FIX: Tighter float animation ---
         gsap.to(snippet, {
           x: `+=${gsap.utils.random(-20, 20)}`, // float horizontally
-          y: `+=${gsap.utils.random(-20, 20)}`, // float vertically
-          duration: gsap.utils.random(5, 10), // random duration
+          y: `+=${gsap.utils.random(-35, 30)}`, // float vertically
+          duration: gsap.utils.random(7, 10), // random duration
           ease: 'sine.inOut',
           yoyo: true,
           repeat: -1,
