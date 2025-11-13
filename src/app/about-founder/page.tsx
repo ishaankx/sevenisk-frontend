@@ -606,13 +606,15 @@ const AboutFounderPage: React.FC = () => {
             <div ref={heroLeftColRef} className="flex-1">
               {' '}
               {/* <-- ADDED REF */}
-              {/* --- ⭐️ FIX 3: Responsive Hero Title --- */}
-              <h1 className="text-3xl sm:text-4xl md:text-5xl font-semibold text-white">
+              
+              {/* --- ⭐️ FIX 2: Responsive Hero Title --- */}
+              <h1 className="text-2xl sm:text-4xl md:text-5xl font-semibold text-white">
                 Hey, I&apos;m
                 <span className="text-gradient-neon"> Ishaan Katara</span>
               </h1>
-              {/* --- ⭐️ FIX 2: Responsive Typewriter --- */}
-              <h2 className="text-xl sm:text-2xl md:text-3xl font-semibold mt-4 mb-8 h-auto min-h-[5rem] sm:min-h-0 sm:h-10 typewriter-gradient font-roboto-mono">
+
+              {/* --- ⭐️ FIX 3: Responsive Typewriter --- */}
+              <h2 className="text-xl sm:text-2xl md:text-3xl font-semibold mt-4 mb-8 typewriter-gradient font-roboto-mono">
                 <span className="text-dark-text mr-2">{prefix}</span>
                 <span>
                   <Typewriter
@@ -677,6 +679,7 @@ const AboutFounderPage: React.FC = () => {
                 </span>
               </h2>
               {/* --- End of FIXES --- */}
+
               {/* --- NEW: Social Icons --- */}
               <div className="flex flex-row gap-6 mt-8">
                 {socialLinks.map((link) => (

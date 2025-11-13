@@ -181,9 +181,11 @@ html, body {
 /* --- Add this to the bottom of src/app/globals.css --- */
 
 .typewriter-gradient {
-  /* This ensures the prefix and typewriter stay on the same line */
-  display: flex;
-  align-items: center;
+  /* --- ⭐️ FIX 2: MODIFIED --- */
+  /* On mobile, stack them */
+  display: block; 
+  @apply sm:flex sm:items-center; /* On sm screens and up, be inline */
+  /* --- End of FIX --- */
 }
 
 .typewriter-gradient .Typewriter__wrapper {
