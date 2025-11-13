@@ -54,18 +54,19 @@ const ptComponents: PortableTextComponents = {
       />
     ),
   },
-
   block: {
-    normal: (({ children, value }) => {
-      const alignment = (value as { alignment?: 'alignCenter' | 'alignRight' | 'alignJustify' }).alignment;
+    normal: ({ children, value }) => {
+      const markDefs = (value.markDefs || []).map((m: any) => m._type);
       let alignmentClass = '';
 
-      if (alignment === 'alignCenter') alignmentClass = 'text-center';
-      else if (alignment === 'alignRight') alignmentClass = 'text-right';
-      else if (alignment === 'alignJustify') alignmentClass = 'text-justify';
+      // 👇 match decorator values (alignLeft, alignCenter, etc.)
+      if (markDefs.includes('alignCenter')) alignmentClass = 'text-center';
+      else if (markDefs.includes('alignRight')) alignmentClass = 'text-right';
+      else if (markDefs.includes('alignJustify')) alignmentClass = 'text-justify';
+      else alignmentClass = 'text-left';
 
       return <p className={alignmentClass}>{children}</p>;
-    }) as PortableTextBlockComponent, // ✅ Correct type cast
+    },
   },
 };
 
