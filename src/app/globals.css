@@ -79,6 +79,7 @@ html, body {
   will-change: transform;
 }
 
+
 .tech-scroller {
   /* This is the "window" */
   width: 100%;
