@@ -57,12 +57,12 @@ const ptComponents: PortableTextComponents = {
 
   block: {
     normal: (({ children, value }) => {
-      const alignment = (value as { alignment?: 'center' | 'right' | 'justify' }).alignment;
+      const alignment = (value as { alignment?: 'alignCenter' | 'alignRight' | 'alignJustify' }).alignment;
       let alignmentClass = '';
 
-      if (alignment === 'center') alignmentClass = 'text-center';
-      else if (alignment === 'right') alignmentClass = 'text-right';
-      else if (alignment === 'justify') alignmentClass = 'text-justify';
+      if (alignment === 'alignCenter') alignmentClass = 'text-center';
+      else if (alignment === 'alignRight') alignmentClass = 'text-right';
+      else if (alignment === 'alignJustify') alignmentClass = 'text-justify';
 
       return <p className={alignmentClass}>{children}</p>;
     }) as PortableTextBlockComponent, // ✅ Correct type cast
