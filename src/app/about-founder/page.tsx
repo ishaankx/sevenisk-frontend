@@ -104,10 +104,10 @@ const socialLinks = [
   {
     name: 'LinkedIn',
     icon: FaLinkedin,
-    href: 'https://www.linkedin.com/in/ishaan-katara-399a83233/',
+    href: 'https://www.linkedin.com/in/ishaan7/',
   },
   { name: 'GitHub', icon: FaGithub, href: 'https://github.com/ishaankx' },
-  { name: 'Email', icon: FaEnvelope, href: 'mailto:ishaankatara@gmail.com' },
+  { name: 'Email', icon: FaEnvelope, href: 'mailto:kataraishaan@gmail.com' },
   { name: 'Twitter', icon: FaXTwitter, href: 'https://x.com/ishaankatara' },
 ];
 
@@ -327,9 +327,10 @@ const AboutFounderPage: React.FC = () => {
       
       // --- MODIFIED: Define responsive ranges ---
       const isMobile = window.innerWidth < 768;
-      const floatRangeX = isMobile ? [-100, 100] : [-200, 200];
-      const floatRangeY = isMobile ? [-150, 150] : [-200, 200];
-      // --- End of MODIFIED section ---
+      // --- ⭐️ FIX: Tighter float range ---
+      const floatRangeX = isMobile ? [-80, 80] : [-120, 120];
+      const floatRangeY = isMobile ? [-120, 120] : [-150, 150];
+      // --- End of FIX ---
 
       gsap.set(mainContainer, {
         opacity: 0,
@@ -388,16 +389,17 @@ const AboutFounderPage: React.FC = () => {
           0.8
         );
 
-        // ADDED: New float animation
+        // --- ⭐️ FIX: Tighter float animation ---
         gsap.to(snippet, {
-          x: `+=${gsap.utils.random(-50, 50)}`, // float horizontally
-          y: `+=${gsap.utils.random(-50, 50)}`, // float vertically
+          x: `+=${gsap.utils.random(-20, 20)}`, // float horizontally
+          y: `+=${gsap.utils.random(-20, 20)}`, // float vertically
           duration: gsap.utils.random(5, 10), // random duration
           ease: 'sine.inOut',
           yoyo: true,
           repeat: -1,
           delay: gsap.utils.random(0, 5), // stagger start times
         });
+        // --- End of FIX ---
       });
 
       tlFounder.call(() => {
@@ -709,7 +711,8 @@ const AboutFounderPage: React.FC = () => {
                 <div
                   ref={mainContainerRef}
                   style={{ opacity: 0, transformStyle: 'preserve-3d' }}
-                  className="relative rounded-lg w-full max-w-[270px] md:max-w-full mx-auto"
+                  // --- ⭐️ FIX 1: ADDED overflow-hidden ---
+                  className="relative rounded-lg w-full max-w-[270px] md:max-w-full mx-auto overflow-hidden"
                 >
                   {/* 1. SNIPPETS (BACKGROUND) */}
                   <div
@@ -768,7 +771,7 @@ const AboutFounderPage: React.FC = () => {
             {/* --- Left Column (Tabs & CV) --- */}
             <div
               ref={aboutMeLeftColRef} // (Ref was already here, correct)
-              className="md:w-1/3"
+              className="md:w-1D3"
             >
               <h2 className="text-3xl md:text-4xl font-semibold text-white text-left mb-8">
                 About <span className="text-gradient-neon">Me</span>
