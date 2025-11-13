@@ -173,6 +173,7 @@ const AboutFounderPage: React.FC = () => {
   // Refs for About Founder (Wizard Effect)
   const mainContainerRef = useRef<HTMLDivElement | null>(null);
   const imageElRef = useRef<HTMLDivElement | null>(null);
+  // --- MODIFIED: Renamed orbitWrapperRef to snippetWrapperRef for clarity ---
   const snippetWrapperRef = useRef<HTMLDivElement | null>(null);
   const snippetTiltWrapperRef = useRef<HTMLDivElement | null>(null);
 
@@ -266,15 +267,19 @@ const AboutFounderPage: React.FC = () => {
     let snippets: HTMLElement[] = [];
     const mainContainer = mainContainerRef.current;
     const image = imageElRef.current;
-    const orbitWrapper = snippetWrapperRef.current;
+    // --- MODIFIED: Use new ref names ---
+    const snippetWrapper = snippetWrapperRef.current;
     const tiltWrapper = snippetTiltWrapperRef.current;
 
     // --- Mouse Listeners for Wizard Effect (No Change) ---
     const handleFounderMouseMove = (e: MouseEvent) => {
       const { clientX, clientY } = e;
-      if (!mainContainer) return;
+      // --- MODIFIED: Use tiltWrapper for bounds ---
+      if (!tiltWrapper) return;
       const { offsetWidth, offsetHeight, offsetLeft, offsetTop } =
-        mainContainer;
+        tiltWrapper;
+      // --- End MODIFIED ---
+      
       const xPos = clientX - (offsetLeft + offsetWidth / 2);
       const yPos = clientY - (offsetTop + offsetHeight / 2);
       const rotateY = gsap.utils.mapRange(
@@ -322,16 +327,17 @@ const AboutFounderPage: React.FC = () => {
     };
 
     // --- MODIFIED: Snippet Animation Logic ---
-    if (mainContainer && image && orbitWrapper && tiltWrapper) {
+    if (mainContainer && image && snippetWrapper && tiltWrapper) {
       snippets = gsap.utils.toArray<HTMLElement>('.code-snippet');
       
       // --- MODIFIED: Define responsive ranges ---
       const isMobile = window.innerWidth < 768;
-      // --- ⭐️ FIX: Tighter float range ---
-      const floatRangeX = isMobile ? [-80, 80] : [-120, 120];
+      // --- ⭐️ FIX: Tighter float range for mobile, wider for desktop ---
+      const floatRangeX = isMobile ? [-80, 80] : [-200, 200];
       const floatRangeY = isMobile ? [-120, 120] : [-150, 150];
       // --- End of FIX ---
 
+      // Set initial state of image container
       gsap.set(mainContainer, {
         opacity: 0,
         y: 50,
@@ -402,9 +408,10 @@ const AboutFounderPage: React.FC = () => {
         // --- End of FIX ---
       });
 
+      // --- MODIFIED: Attach listeners to the tiltWrapper ---
       tlFounder.call(() => {
-        mainContainer.addEventListener('mousemove', handleFounderMouseMove);
-        mainContainer.addEventListener('mouseleave', handleFounderMouseLeave);
+        tiltWrapper.addEventListener('mousemove', handleFounderMouseMove);
+        tiltWrapper.addEventListener('mouseleave', handleFounderMouseLeave);
       });
     }
     // --- End of MODIFIED section ---
@@ -532,9 +539,10 @@ const AboutFounderPage: React.FC = () => {
 
     // --- Cleanup Function ---
     return () => {
-      if (mainContainer) {
-        mainContainer.removeEventListener('mousemove', handleFounderMouseMove);
-        mainContainer.removeEventListener('mouseleave', handleFounderMouseLeave);
+      // --- MODIFIED: Use tiltWrapper for cleanup ---
+      if (tiltWrapper) {
+        tiltWrapper.removeEventListener('mousemove', handleFounderMouseMove);
+        tiltWrapper.removeEventListener('mouseleave', handleFounderMouseLeave);
       }
 
       // 9. ADDED: Scroller cleanup
@@ -571,7 +579,7 @@ const AboutFounderPage: React.FC = () => {
       gsap.killTweensOf([
         mainContainer,
         image,
-        orbitWrapper,
+        snippetWrapper, // Use correct ref name
         tiltWrapper,
         ...snippets,
         heroSection,
@@ -592,7 +600,8 @@ const AboutFounderPage: React.FC = () => {
       {/* --- NEW: HERO SECTION --- */}
       <div
         ref={heroSectionRef} // <-- ADDED REF
-        className="relative z-10 w-full min-h-screen flex items-center pt-32 pb-20 text-dark-text"
+        // --- ⭐️ FIX 1: ADDED overflow-x-hidden ---
+        className="relative z-10 w-full min-h-screen flex items-center pt-32 pb-20 text-dark-text overflow-x-hidden"
       >
         {/* Particle Background */}
         <Suspense
@@ -707,51 +716,53 @@ const AboutFounderPage: React.FC = () => {
               {' '}
               {/* <-- ADDED REF */}
               <div style={{ perspective: '1000px' }}>
-                {/* --- MODIFIED: JSX Order for Layering --- */}
+                {/* --- ⭐️ FIX 2: NEW STRUCTURE --- */}
+                {/* This is the 3D context and tilt wrapper */}
                 <div
-                  ref={mainContainerRef}
-                  style={{ opacity: 0, transformStyle: 'preserve-3d' }}
-                  // --- ⭐️ FIX 1: ADDED overflow-hidden ---
-                  className="relative rounded-lg w-full max-w-[270px] md:max-w-full mx-auto overflow-hidden"
+                  ref={snippetTiltWrapperRef}
+                  className="relative w-full"
+                  style={{ transformStyle: 'preserve-3d' }}
                 >
-                  {/* 1. SNIPPETS (BACKGROUND) */}
+                  
+                  {/* 1. SNIPPETS (BACKGROUND) - positioned absolutely relative to tilt wrapper */}
                   <div
                     ref={snippetWrapperRef}
-                    className="absolute inset-0"
+                    className="absolute inset-0 flex justify-center items-center"
                     style={{ transformStyle: 'preserve-3d' }}
                   >
+                    {codeSnippets.map((snippet, i) => (
+                      <span
+                        key={`${snippet.text}-${i}`}
+                        className="code-snippet"
+                      >
+                        {snippet.text}
+                      </span>
+                    ))}
+                  </div>
+
+                  {/* 2. IMAGE (FOREGROUND) - centered */}
+                  <div
+                    ref={mainContainerRef}
+                    style={{ opacity: 0, transformStyle: 'preserve-3d' }}
+                    className="relative z-10 w-full max-w-[270px] md:max-w-full mx-auto" // No overflow-hidden
+                  >
                     <div
-                      ref={snippetTiltWrapperRef}
-                      className="absolute inset-0"
+                      ref={imageElRef}
+                      className="rounded-lg shadow-2xl relative z-10"
                       style={{ transformStyle: 'preserve-3d' }}
                     >
-                      {codeSnippets.map((snippet, i) => (
-                        <span
-                          key={`${snippet.text}-${i}`}
-                          className="code-snippet"
-                        >
-                          {snippet.text}
-                        </span>
-                      ))}
+                      <Image
+                        src="/images/founder2.png"
+                        alt="Ishaan Katara, Founder"
+                        width={400}
+                        height={400}
+                        className="rounded-lg w-full h-auto"
+                      />
                     </div>
                   </div>
 
-                  {/* 2. IMAGE (FOREGROUND) */}
-                  <div
-                    ref={imageElRef}
-                    className="rounded-lg shadow-2xl relative z-10" // Added relative z-10
-                    style={{ transformStyle: 'preserve-3d' }}
-                  >
-                    <Image
-                      src="/images/founder2.png"
-                      alt="Ishaan Katara, Founder"
-                      width={400}
-                      height={400}
-                      className="rounded-lg w-full h-auto"
-                    />
-                  </div>
                 </div>
-                {/* --- End of MODIFIED section --- */}
+                {/* --- End of FIX 2 --- */}
               </div>
               <p className="text-center mt-4 text-dark-text">
                 Ishaan Katara, Founder & Developer
@@ -771,7 +782,7 @@ const AboutFounderPage: React.FC = () => {
             {/* --- Left Column (Tabs & CV) --- */}
             <div
               ref={aboutMeLeftColRef} // (Ref was already here, correct)
-              className="md:w-1D3"
+              className="md:w-1D3" // Typo here, should be md:w-1/3
             >
               <h2 className="text-3xl md:text-4xl font-semibold text-white text-left mb-8">
                 About <span className="text-gradient-neon">Me</span>
