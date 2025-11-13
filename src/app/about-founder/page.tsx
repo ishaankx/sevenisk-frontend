@@ -397,7 +397,7 @@ const AboutFounderPage: React.FC = () => {
 
         // --- ⭐️ FIX: Tighter float animation ---
         gsap.to(snippet, {
-          x: `+=${gsap.utils.random(-30, 10)}`, // float horizontally
+          x: `+=${gsap.utils.random(-20, 15)}`, // float horizontally
           y: `+=${gsap.utils.random(-35, 30)}`, // float vertically
           duration: gsap.utils.random(7, 10), // random duration
           ease: 'sine.inOut',
@@ -635,17 +635,12 @@ const AboutFounderPage: React.FC = () => {
                     }}
                     onInit={(typewriter) => {
                       typewriter
-                        .callFunction(() => {
-                          setPrefix('I am a');
-                        })
-                        .typeString('Machine Learning Engineer')
-                        .pauseFor(1500)
-                        .deleteAll()
+
 
                         .callFunction(() => {
-                          setPrefix('I am a');
+                          setPrefix('I am the');
                         })
-                        .typeString('Data Scientist')
+                        .typeString('Founder of SevenIsK')
                         .pauseFor(1500)
                         .deleteAll()
 
@@ -664,6 +659,13 @@ const AboutFounderPage: React.FC = () => {
                         .deleteAll()
 
                         .callFunction(() => {
+                          setPrefix('I am a');
+                        })
+                        .typeString('Machine Learning Engineer')
+                        .pauseFor(1500)
+                        .deleteAll()
+
+                        .callFunction(() => {
                           setPrefix('I am an');
                         })
                         .typeString('Agentic AI Developer')
@@ -678,11 +680,13 @@ const AboutFounderPage: React.FC = () => {
                         .deleteAll()
 
                         .callFunction(() => {
-                          setPrefix('I am the');
+                          setPrefix('I am a');
                         })
-                        .typeString('Founder of SevenIsK')
+                        .typeString('Data Scientist')
                         .pauseFor(1500)
                         .deleteAll()
+
+                        
 
                         .start();
                     }}
