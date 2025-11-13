@@ -54,19 +54,17 @@ const ptComponents: PortableTextComponents = {
       />
     ),
   },
+
+  // ✅ This handles alignment decorators (marks)
+  marks: {
+    alignLeft: ({ children }) => <span className="block text-left">{children}</span>,
+    alignCenter: ({ children }) => <span className="block text-center">{children}</span>,
+    alignRight: ({ children }) => <span className="block text-right">{children}</span>,
+    alignJustify: ({ children }) => <span className="block text-justify">{children}</span>,
+  },
+
   block: {
-    normal: ({ children, value }) => {
-      const markDefs = (value.markDefs || []).map((m: any) => m._type);
-      let alignmentClass = '';
-
-      // 👇 match decorator values (alignLeft, alignCenter, etc.)
-      if (markDefs.includes('alignCenter')) alignmentClass = 'text-center';
-      else if (markDefs.includes('alignRight')) alignmentClass = 'text-right';
-      else if (markDefs.includes('alignJustify')) alignmentClass = 'text-justify';
-      else alignmentClass = 'text-left';
-
-      return <p className={alignmentClass}>{children}</p>;
-    },
+    normal: ({ children }) => <p className="mb-4">{children}</p>,
   },
 };
 
