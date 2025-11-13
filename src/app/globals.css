@@ -12,6 +12,7 @@
 @layer base {
   body {
     @apply bg-dark-bg text-white font-poppins;
+    overflow-x: hidden;
   }
 }
 
