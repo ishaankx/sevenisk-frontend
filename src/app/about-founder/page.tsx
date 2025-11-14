@@ -15,6 +15,9 @@ import { gsap } from 'gsap';
 import { ScrollTrigger } from 'gsap/dist/ScrollTrigger';
 import Typewriter from 'typewriter-effect';
 
+import ProjectCard from '@/components/ProjectCard';
+import { projects } from '@/data/projectsData';
+
 // NEW: Import social icons
 import {
   FaLinkedin,
@@ -157,6 +160,8 @@ const AboutFounderPage: React.FC = () => {
   const [isModalOpen, setIsModalOpen] = useState<boolean>(false);
   const [prefix, setPrefix] = useState('I am a');
   
+  // --- ⭐️ NEW: State for "Show More" projects ⭐️ ---
+  const [showAllProjects, setShowAllProjects] = useState(false);
   // --- ⭐️ NEW: State to prevent animation spamming ⭐️ ---
   const [isAnimating, setIsAnimating] = useState(false);
 
@@ -196,6 +201,13 @@ const AboutFounderPage: React.FC = () => {
   const expContentRef = useRef<HTMLUListElement | null>(null);
   const eduContentRef = useRef<HTMLUListElement | null>(null);
   // --- End of new refs ---
+
+  // --- ⭐️ NEW: Refs for Projects Section Animation ⭐️ ---
+  const projectsSectionRef = useRef<HTMLDivElement | null>(null);
+  const projectsTitleRef = useRef<HTMLHeadingElement | null>(null);
+  const projectsGridRef = useRef<HTMLDivElement | null>(null);
+  // --- End of new refs ---
+
 
   // --- Scroller drag-and-drop logic ---
   const getClientX = (e: DragEvent): number => {
@@ -605,6 +617,26 @@ const AboutFounderPage: React.FC = () => {
       });
     }
 
+    // --- ⭐️ NEW: GSAP Animation for Projects Section ⭐️ ---
+    const projectsSection = projectsSectionRef.current;
+    const projectsTitle = projectsTitleRef.current;
+    const projectsGrid = projectsGridRef.current;
+    if (projectsSection && projectsTitle && projectsGrid) {
+      gsap.set(projectsTitle, { opacity: 0, y: 30 });
+      
+      // MODIFIED: Only select the initial cards to animate on scroll
+      const initialCards = gsap.utils.toArray(projectsGrid.children).slice(0, 3);
+      gsap.set(initialCards, { opacity: 0, y: 30, scale: 0.95 });
+
+      gsap.timeline({ scrollTrigger: { trigger: projectsSection, start: 'top 80%', end: 'top 50%', scrub: 1 } })
+        .to(projectsTitle, { opacity: 1, y: 0, ease: 'power2.out' }, 0)
+        .to(initialCards, { // MODIFIED: Only animate initial cards
+          opacity: 1, y: 0, scale: 1, stagger: 0.1, ease: 'power2.out'
+        }, 0.2);
+    }
+    // --- End of new animation ---
+
+
     // --- Cleanup Function ---
     return () => {
       if (tiltWrapper) {
@@ -658,9 +690,41 @@ const AboutFounderPage: React.FC = () => {
         skillsContentRef.current ? gsap.utils.toArray(skillsContentRef.current.children) : [],
         expContentRef.current ? gsap.utils.toArray(expContentRef.current.children) : [],
         eduContentRef.current ? gsap.utils.toArray(eduContentRef.current.children) : [],
+        // --- ⭐️ NEW: Kill project tweens ---
+        projectsTitle,
+        projectsGrid ? gsap.utils.toArray(projectsGrid.children) : [],
       ]);
     };
   }, [handleMouseDown, handleMouseMove, handleMouseUp]); // Dependencies are correct
+
+
+  // --- ⭐️ NEW: useEffect to animate "Show More" projects ⭐️ ---
+  useEffect(() => {
+    // Only run this if showAllProjects is true and the grid ref exists
+    if (showAllProjects && projectsGridRef.current) {
+      
+      // Select only the new cards that were added (index 3 and beyond)
+      const newCards = gsap.utils.toArray(projectsGridRef.current.children).slice(3);
+      
+      if (newCards.length > 0) {
+        // Set their initial state
+        gsap.set(newCards, { opacity: 0, y: 30, scale: 0.95 });
+        // Animate them in
+        gsap.to(newCards, {
+          opacity: 1,
+          y: 0,
+          scale: 1,
+          stagger: 0.1, // Stagger the animation
+          ease: 'power2.out',
+          duration: 0.5,
+        });
+      }
+    }
+  }, [showAllProjects]); // This effect runs *only* when showAllProjects changes
+
+
+  // --- ⭐️ NEW: Variable for displayed projects ⭐️ ---
+  const displayedProjects = showAllProjects ? projects : projects.slice(0, 3);
 
   return (
     <>
@@ -835,7 +899,7 @@ const AboutFounderPage: React.FC = () => {
             {/* --- Left Column (Tabs & CV) --- */}
             <div
               ref={aboutMeLeftColRef}
-              className="md:w-1/3" // FIXED typo
+              className="md:w-1/3"
             >
               <h2 className="text-3xl md:text-4xl font-semibold text-white text-left mb-8">
                 About <span className="text-gradient-neon">Me</span>
@@ -1188,6 +1252,49 @@ const AboutFounderPage: React.FC = () => {
           </div>
         </div>
       </div>
+
+      {/* --- ⭐️⭐️ MODIFIED PROJECTS SECTION ⭐️⭐️ --- */}
+      <section 
+        ref={projectsSectionRef} 
+        className="relative z-10 py-20 text-dark-text bg-dark-bg"
+      >
+        <div className="container mx-auto px-5">
+          <h2 
+            ref={projectsTitleRef}
+            className="text-3xl md:text-4xl font-semibold text-white text-center mb-12"
+          >
+            My <span className="text-gradient-neon">Projects</span>
+          </h2>
+          <div 
+            ref={projectsGridRef}
+            className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-20 max-w-8xl mx-auto"
+          >
+            {/* MODIFIED: Map over displayedProjects instead of all projects */}
+            {displayedProjects.map((project) => (
+              <ProjectCard 
+                key={project.id} // Use project.id for a stable key
+                project={project} 
+              />
+            ))}
+          </div>
+
+          {/* --- ⭐️ NEW: "Show More" Button ⭐️ --- */}
+          {!showAllProjects && projects.length > 3 && (
+            <div className="text-center mt-12">
+              <button
+                onClick={() => setShowAllProjects(true)}
+                className="btn inline-block bg-brand-teal text-black py-3 px-8 rounded-md font-semibold transition-all duration-300 hover:bg-brand-teal-hover hover:scale-105"
+              >
+                Show More
+              </button>
+            </div>
+          )}
+          {/* --- ⭐️⭐️ END OF NEW BUTTON ⭐️⭐️ --- */}
+
+        </div>
+      </section>
+      {/* --- ⭐️⭐️ END OF MODIFIED SECTION ⭐️⭐️ --- */}
+
 
       <CVModal isOpen={isModalOpen} onClose={() => setIsModalOpen(false)} />
     </>

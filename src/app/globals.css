@@ -322,3 +322,19 @@ html, body {
   background: #00FFF0; /* brand-teal */
   box-shadow: 0 0 8px rgba(0, 255, 240, 0.5);
 }
+
+.project-card {
+  transition: transform 0.3s ease-in-out, box-shadow 0.3s ease-in-out;
+}
+
+.project-card:hover {
+  transform: translateY(-5px);
+  box-shadow: 0 10px 20px rgba(0, 0, 0, 0.4);
+}
+
+.project-card-wrapper {
+  /* This wrapper helps GSAP animate each card without interfering with grid */
+  display: flex;
+  justify-content: center;
+  align-items: stretch; /* Ensures cards in a row have equal height */
+}
