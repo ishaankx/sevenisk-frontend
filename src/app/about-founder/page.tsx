@@ -697,18 +697,7 @@ const AboutFounderPage: React.FC = () => {
                     }}
                     onInit={(typewriter) => {
                       typewriter
-                        .callFunction(() => {
-                          setPrefix('I am the');
-                        })
-                        .typeString('Founder of SevenIsK')
-                        .pauseFor(1500)
-                        .deleteAll()
-                        .callFunction(() => {
-                          setPrefix('I am a');
-                        })
-                        .typeString('Computer Scientist')
-                        .pauseFor(1500)
-                        .deleteAll()
+
                         .callFunction(() => {
                           setPrefix('I am a');
                         })
@@ -718,6 +707,21 @@ const AboutFounderPage: React.FC = () => {
                         .callFunction(() => {
                           setPrefix('I am a');
                         })
+
+                        .callFunction(() => {
+                          setPrefix('I am the');
+                        })
+                        .typeString('Founder of SevenIsK')
+                        .pauseFor(1500)
+                        .deleteAll()
+
+                        .callFunction(() => {
+                          setPrefix('I am a');
+                        })
+                        .typeString('Computer Scientist')
+                        .pauseFor(1500)
+                        .deleteAll()
+                        
                         .typeString('Machine Learning Engineer')
                         .pauseFor(1500)
                         .deleteAll()
