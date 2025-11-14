@@ -69,7 +69,7 @@ const ParticlesBackground: React.FC = () => {
           enable: true,
           area: 800,
         },
-        value: 80, // Number of particles
+        value: 70, // Number of particles
       },
       opacity: {
         value: 0.5,

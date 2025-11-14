@@ -71,7 +71,7 @@ html, body {
   
   /* Glassmorphism effect */
   background: rgba(0, 0, 0, 0.3);
-  backdrop-filter: blur(2px);
+  /* backdrop-filter: blur(2px); */
   border: 1px solid rgba(0, 169, 157, 0.3);
   
   white-space: nowrap; /* Prevent line breaks */
