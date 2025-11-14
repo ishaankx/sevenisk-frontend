@@ -74,7 +74,7 @@ export const projects: Project[] = [
   {
   id: 4, // Use the next available ID
   imageUrl: '/images/recongence.png', // Create a visual for your Streamlit app!
-  title: 'Recongence AI',
+  title: 'Recongence AI: Finance-clear. Credit Risk-Secured.',
   summary: 'A production-ready Probability of Default (PD) classification model for a financial institution to forecast loan risk and flag potential fraud. Implemented a full MLOps pipeline for data ingestion, feature engineering (LTI, Age-Binning), model serving, and real-time inference via a public web application.',
   techStack: [
     'Python', 
