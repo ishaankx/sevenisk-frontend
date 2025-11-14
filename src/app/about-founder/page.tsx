@@ -7,7 +7,7 @@ import React, {
   useRef,
   Suspense,
   lazy,
-  useCallback, // 1. ADDED
+  useCallback,
 } from 'react';
 import Image from 'next/image';
 import CVModal from '@/components/CVModal'; // Adjusted path
@@ -16,7 +16,21 @@ import { ScrollTrigger } from 'gsap/dist/ScrollTrigger';
 import Typewriter from 'typewriter-effect';
 
 // NEW: Import social icons
-import { FaLinkedin, FaGithub, FaXTwitter, FaEnvelope } from 'react-icons/fa6';
+import {
+  FaLinkedin,
+  FaGithub,
+  FaXTwitter,
+  FaEnvelope,
+  FaBrain, // For AI/ML
+  FaSitemap, // For Agentic AI
+  FaServer, // For Back-End
+  FaInfinity, // For DevOps
+  FaBriefcase, // For Internships
+  FaBuilding, // For Founder
+  FaGraduationCap, // For University
+  FaSchool, // For School
+} from 'react-icons/fa6';
+
 import Link from 'next/link';
 
 // 2. ADDED: Tech icon imports
@@ -57,33 +71,6 @@ import { TbBrain } from 'react-icons/tb';
 const ParticlesBackground = lazy(
   () => import('@/components/ParticlesBackground')
 );
-
-// --- Tab Button Component (Copied from About.tsx) ---
-type Tab = 'skills' | 'expereince' | 'education';
-
-interface TabButtonProps {
-  active: boolean;
-  selectTab: () => void;
-  children: React.ReactNode;
-}
-
-const TabButton: React.FC<TabButtonProps> = ({
-  active,
-  selectTab,
-  children,
-}) => {
-  const buttonClasses = active
-    ? 'text-white border-b-2 border-brand-teal'
-    : 'text-dark-text';
-
-  return (
-    <button onClick={selectTab}>
-      <p className={`mr-6 font-semibold ${buttonClasses} transition-all`}>
-        {children}
-      </p>
-    </button>
-  );
-};
 
 // --- MODIFIED: Code Snippets Logic ---
 const singleLineOfCode =
@@ -162,32 +149,34 @@ const founderTechnologies: TechInfoWithProficiency[] = [
 ];
 
 type DragEvent = MouseEvent | TouchEvent;
+type Tab = 'skills' | 'expereince' | 'education';
 
 // --- Main Page Component ---
 const AboutFounderPage: React.FC = () => {
   const [tab, setTab] = useState<Tab>('skills');
   const [isModalOpen, setIsModalOpen] = useState<boolean>(false);
-
   const [prefix, setPrefix] = useState('I am a');
+  
+  // --- ⭐️ NEW: State to prevent animation spamming ⭐️ ---
+  const [isAnimating, setIsAnimating] = useState(false);
 
   // Refs for About Founder (Wizard Effect)
   const mainContainerRef = useRef<HTMLDivElement | null>(null);
   const imageElRef = useRef<HTMLDivElement | null>(null);
-  // --- MODIFIED: Renamed orbitWrapperRef to snippetWrapperRef for clarity ---
   const snippetWrapperRef = useRef<HTMLDivElement | null>(null);
   const snippetTiltWrapperRef = useRef<HTMLDivElement | null>(null);
 
-  // --- ADDED: Refs for Hero Section Parallax ---
+  // --- Refs for Hero Section Parallax ---
   const heroSectionRef = useRef<HTMLDivElement | null>(null);
   const heroLeftColRef = useRef<HTMLDivElement | null>(null);
   const heroRightColRef = useRef<HTMLDivElement | null>(null);
 
-  // Refs for About Me Parallax
+  // --- Refs for About Me Parallax ---
   const aboutMeSectionRef = useRef<HTMLDivElement | null>(null);
   const aboutMeLeftColRef = useRef<HTMLDivElement | null>(null);
   const aboutMeRightColRef = useRef<HTMLDivElement | null>(null);
 
-  // 6. ADDED: Refs for new Tech Scroller
+  // --- Refs for Tech Scroller ---
   const techScrollerRef = useRef<HTMLDivElement | null>(null);
   const techScrollerInnerRef = useRef<HTMLDivElement | null>(null);
   const scrollerAnim = useRef<gsap.core.Timeline | null>(null);
@@ -196,7 +185,19 @@ const AboutFounderPage: React.FC = () => {
   const startTime = useRef(0);
   const scrollWidthRef = useRef(0);
 
-  // 7. ADDED: Scroller drag-and-drop logic (from Services.tsx)
+  // --- ⭐️ Refs for Tab Animation ⭐️ ---
+  const tabsContainerRef = useRef<HTMLDivElement | null>(null);
+  const skillsTabRef = useRef<HTMLButtonElement | null>(null);
+  const expTabRef = useRef<HTMLButtonElement | null>(null);
+  const eduTabRef = useRef<HTMLButtonElement | null>(null);
+  const underlineRef = useRef<HTMLDivElement | null>(null);
+
+  const skillsContentRef = useRef<HTMLUListElement | null>(null);
+  const expContentRef = useRef<HTMLUListElement | null>(null);
+  const eduContentRef = useRef<HTMLUListElement | null>(null);
+  // --- End of new refs ---
+
+  // --- Scroller drag-and-drop logic ---
   const getClientX = (e: DragEvent): number => {
     if (e instanceof TouchEvent && e.touches.length > 0) {
       return e.touches[0].clientX;
@@ -204,7 +205,6 @@ const AboutFounderPage: React.FC = () => {
     return (e as MouseEvent).clientX;
   };
 
-  // --- FIXED ORDER ---
   const handleMouseMove = useCallback((e: DragEvent) => {
     if (
       !isDragging.current ||
@@ -233,7 +233,6 @@ const AboutFounderPage: React.FC = () => {
     document.removeEventListener('touchend', handleMouseUp);
     document.removeEventListener('mouseleave', handleMouseUp);
 
-    // Resume the infinite loop smoothly
     gsap.to(scrollerAnim.current, {
       timeScale: 1,
       duration: 0.5,
@@ -262,23 +261,112 @@ const AboutFounderPage: React.FC = () => {
     },
     [handleMouseMove, handleMouseUp]
   );
+  
+  // --- ⭐️ MODIFIED: Tab Animation Logic ⭐️ ---
+  const animateUnderline = (target: HTMLElement) => {
+    if (!underlineRef.current || !tabsContainerRef.current) return;
+
+    const containerRect = tabsContainerRef.current.getBoundingClientRect();
+    const targetRect = target.getBoundingClientRect();
+    
+    const newLeft = targetRect.left - containerRect.left;
+    const newWidth = targetRect.width;
+
+    gsap.to(underlineRef.current, {
+      left: newLeft,
+      width: newWidth,
+      duration: 0.3,
+      ease: 'power3.out',
+    });
+  };
+
+  // This is now the *only* function that handles tab changes
+  const handleTabChange = (
+    newTab: Tab,
+    targetRef: React.RefObject<HTMLElement>
+  ) => {
+    // Prevent animation spam
+    if (newTab === tab || !targetRef.current || isAnimating) return;
+    setIsAnimating(true);
+
+    // 1. Get refs for current and new content
+    let currentContentRef: React.RefObject<HTMLUListElement> | null = null;
+    if (tab === 'skills') currentContentRef = skillsContentRef;
+    if (tab === 'expereince') currentContentRef = expContentRef;
+    if (tab === 'education') currentContentRef = eduContentRef;
+    
+    let newContentRef: React.RefObject<HTMLUListElement> | null = null;
+    if (newTab === 'skills') newContentRef = skillsContentRef;
+    if (newTab === 'expereince') newContentRef = expContentRef;
+    if (newTab === 'education') newContentRef = eduContentRef;
+
+    if (!currentContentRef?.current || !newContentRef?.current) return;
+
+    // 2. Animate underline
+    animateUnderline(targetRef.current);
+    
+    // 3. Get items for animation
+    const oldItems = gsap.utils.toArray(currentContentRef.current.children);
+    const newItems = gsap.utils.toArray(newContentRef.current.children);
+
+    // 4. Create single, seamless timeline
+    const tl = gsap.timeline({
+      onComplete: () => {
+        setTab(newTab); // Set React state *after* animation is done
+        setIsAnimating(false);
+      },
+    });
+
+    // 5. Run the animations
+    tl.to(oldItems, {
+        opacity: 0,
+        x: -20,
+        duration: 0.2,
+        stagger: 0.05,
+        ease: 'power1.in',
+      })
+      .set(currentContentRef.current, { display: 'none' }) // Hide old list
+      .set(newContentRef.current, { display: 'block' })  // Show new list
+      .set(newItems, { opacity: 0, y: 20, x: 0 })      // Set initial state of new list
+      .to(newItems, {
+        opacity: 1,
+        y: 0,
+        duration: 0.3,
+        stagger: 0.07,
+        ease: 'power3.out',
+      });
+  };
+
+  // --- REMOVED: useEffect([tab]) ---
+  // The logic from that hook is now inside handleTabChange
 
   useEffect(() => {
+    // --- Set initial underline position ---
+    if (skillsTabRef.current) {
+      animateUnderline(skillsTabRef.current);
+    }
+    
+    // --- ⭐️ NEW: Set initial visibility of tab content ⭐️ ---
+    gsap.set([expContentRef.current, eduContentRef.current], { display: 'none' });
+    gsap.set(skillsContentRef.current, { display: 'block' });
+    // Set initial items to full opacity without animation
+    if(skillsContentRef.current) {
+      gsap.set(skillsContentRef.current.children, { opacity: 1, y: 0 });
+    }
+    // --- End of new logic ---
+
+
     let snippets: HTMLElement[] = [];
     const mainContainer = mainContainerRef.current;
     const image = imageElRef.current;
-    // --- MODIFIED: Use new ref names ---
     const snippetWrapper = snippetWrapperRef.current;
     const tiltWrapper = snippetTiltWrapperRef.current;
 
-    // --- Mouse Listeners for Wizard Effect (No Change) ---
     const handleFounderMouseMove = (e: MouseEvent) => {
       const { clientX, clientY } = e;
-      // --- MODIFIED: Use tiltWrapper for bounds ---
       if (!tiltWrapper) return;
       const { offsetWidth, offsetHeight, offsetLeft, offsetTop } =
         tiltWrapper;
-      // --- End MODIFIED ---
       
       const xPos = clientX - (offsetLeft + offsetWidth / 2);
       const yPos = clientY - (offsetTop + offsetHeight / 2);
@@ -326,18 +414,13 @@ const AboutFounderPage: React.FC = () => {
       });
     };
 
-    // --- MODIFIED: Snippet Animation Logic ---
     if (mainContainer && image && snippetWrapper && tiltWrapper) {
       snippets = gsap.utils.toArray<HTMLElement>('.code-snippet');
       
-      // --- MODIFIED: Define responsive ranges ---
       const isMobile = window.innerWidth < 768;
-      // --- ⭐️ FIX: Tighter float range for mobile, wider for desktop ---
       const floatRangeX = isMobile ? [-80, 80] : [-200, 200];
       const floatRangeY = isMobile ? [-120, 120] : [-150, 150];
-      // --- End of FIX ---
 
-      // Set initial state of image container
       gsap.set(mainContainer, {
         opacity: 0,
         y: 50,
@@ -346,7 +429,7 @@ const AboutFounderPage: React.FC = () => {
       });
       gsap.set(snippets, { opacity: 0 });
 
-      const tlFounder = gsap.timeline({ delay: 0.2 }); // Animate in on page load
+      const tlFounder = gsap.timeline({ delay: 0.2 });
 
       tlFounder.to(
         mainContainer,
@@ -374,49 +457,42 @@ const AboutFounderPage: React.FC = () => {
 
       snippets.forEach((snippet, i) => {
         
-        // --- MODIFIED: Generate positions dynamically ---
         const xPos = gsap.utils.random(floatRangeX[0], floatRangeX[1]);
         const yPos = gsap.utils.random(floatRangeY[0], floatRangeY[1]);
     
         gsap.set(snippet, {
           x: xPos,
           y: yPos,
-          z: -50, // Puts snippet "behind" the image
+          z: -50, 
         });
-        // --- End of MODIFIED section ---
 
         tlFounder.to(
           snippet,
           {
-            opacity: 0.9, // Fade in
+            opacity: 0.9, 
             duration: 1,
             ease: 'power2.out',
           },
           0.8
         );
 
-        // --- ⭐️ FIX: Tighter float animation ---
         gsap.to(snippet, {
-          x: `+=${gsap.utils.random(-20, 15)}`, // float horizontally
-          y: `+=${gsap.utils.random(-35, 30)}`, // float vertically
-          duration: gsap.utils.random(7, 10), // random duration
+          x: `+=${gsap.utils.random(-20, 15)}`, 
+          y: `+=${gsap.utils.random(-35, 30)}`, 
+          duration: gsap.utils.random(7, 10), 
           ease: 'sine.inOut',
           yoyo: true,
           repeat: -1,
-          delay: gsap.utils.random(0, 5), // stagger start times
+          delay: gsap.utils.random(0, 5), 
         });
-        // --- End of FIX ---
       });
 
-      // --- MODIFIED: Attach listeners to the tiltWrapper ---
       tlFounder.call(() => {
         tiltWrapper.addEventListener('mousemove', handleFounderMouseMove);
         tiltWrapper.addEventListener('mouseleave', handleFounderMouseLeave);
       });
     }
-    // --- End of MODIFIED section ---
 
-    // --- ADDED: PARALLAX FOR HERO SECTION ---
     const heroSection = heroSectionRef.current;
     const heroLeft = heroLeftColRef.current;
     const heroRight = heroRightColRef.current;
@@ -436,20 +512,18 @@ const AboutFounderPage: React.FC = () => {
           {
             opacity: 0,
             scale: 0.8,
-            y: -100, // Move up as it shrinks
+            y: -100, 
             ease: 'none',
           },
           0
         );
     }
 
-    // --- MODIFIED: PARALLAX FOR ABOUT ME SECTION ---
     const aboutSection = aboutMeSectionRef.current;
     const leftCol = aboutMeLeftColRef.current;
     const rightCol = aboutMeRightColRef.current;
 
     if (aboutSection && leftCol && rightCol) {
-      // Set initial state: faded out, scaled down, and slightly lower
       gsap.set(leftCol, { y: 50, opacity: 0, scale: 0.9 });
       gsap.set(rightCol, { y: 50, opacity: 0, scale: 0.9 });
 
@@ -465,7 +539,7 @@ const AboutFounderPage: React.FC = () => {
         .to(
           leftCol,
           {
-            y: -50, // Final Y position (moves up faster)
+            y: -50, 
             opacity: 1,
             scale: 1,
             ease: 'none',
@@ -475,7 +549,7 @@ const AboutFounderPage: React.FC = () => {
         .to(
           rightCol,
           {
-            y: -20, // Final Y position (moves up slower for parallax)
+            y: -20, 
             opacity: 1,
             scale: 1,
             ease: 'none',
@@ -484,12 +558,10 @@ const AboutFounderPage: React.FC = () => {
         );
     }
 
-    // 8. ADDED: Scroller logic for THIS page
     const scroller = techScrollerRef.current;
     const scrollerInner = techScrollerInnerRef.current;
-    let techCards: HTMLElement[] = []; // Store cards for cleanup
+    let techCards: HTMLElement[] = []; 
 
-    // --- NEW: Card hover listeners ---
     const onCardMouseEnter = () => {
       if (scrollerAnim.current) {
         gsap.to(scrollerAnim.current, { timeScale: 0, duration: 0.3 });
@@ -510,27 +582,23 @@ const AboutFounderPage: React.FC = () => {
       const numCards = founderTechnologies.length;
       for (let i = 0; i < numCards; i++) {
         if (techCards[i]) {
-          // 150px card width + 2rem (32px) gap
           scrollWidth += techCards[i].offsetWidth + 32;
         }
       }
       scrollWidthRef.current = scrollWidth;
 
-      // Initialize the GSAP timeline
       scrollerAnim.current = gsap.timeline({
         repeat: -1,
         ease: 'none',
       });
       scrollerAnim.current.to(scrollerInner, {
         x: -scrollWidth,
-        duration: 80, // Same duration as Services page
+        duration: 80, 
       });
 
-      // Attach interaction listeners
       scroller.addEventListener('mousedown', handleMouseDown as EventListener);
       scroller.addEventListener('touchstart', handleMouseDown as EventListener);
 
-      // --- NEW: Attach listeners to cards ---
       techCards.forEach((card) => {
         card.addEventListener('mouseenter', onCardMouseEnter);
         card.addEventListener('mouseleave', onCardMouseLeave);
@@ -539,13 +607,11 @@ const AboutFounderPage: React.FC = () => {
 
     // --- Cleanup Function ---
     return () => {
-      // --- MODIFIED: Use tiltWrapper for cleanup ---
       if (tiltWrapper) {
         tiltWrapper.removeEventListener('mousemove', handleFounderMouseMove);
         tiltWrapper.removeEventListener('mouseleave', handleFounderMouseLeave);
       }
 
-      // 9. ADDED: Scroller cleanup
       if (scroller) {
         scroller.removeEventListener(
           'mousedown',
@@ -556,13 +622,11 @@ const AboutFounderPage: React.FC = () => {
           handleMouseDown as EventListener
         );
       }
-      // --- NEW: Remove card listeners ---
       techCards.forEach((card) => {
         card.removeEventListener('mouseenter', onCardMouseEnter);
         card.removeEventListener('mouseleave', onCardMouseLeave);
       });
 
-      // Drag cleanup
       document.removeEventListener(
         'mousemove',
         handleMouseMove as EventListener
@@ -573,13 +637,12 @@ const AboutFounderPage: React.FC = () => {
         handleMouseMove as EventListener
       );
       document.removeEventListener('touchend', handleMouseUp);
-      // FIXED: Also remove the mouseleave listener
       document.removeEventListener('mouseleave', handleMouseUp);
 
       gsap.killTweensOf([
         mainContainer,
         image,
-        snippetWrapper, // Use correct ref name
+        snippetWrapper, 
         tiltWrapper,
         ...snippets,
         heroSection,
@@ -588,19 +651,22 @@ const AboutFounderPage: React.FC = () => {
         aboutSection,
         leftCol,
         rightCol,
-        // 10. ADDED: GSAP Scroller Cleanup
         scroller,
         scrollerInner,
+        underlineRef.current,
+        // --- ⭐️ NEW: Kill list item tweens ---
+        skillsContentRef.current ? gsap.utils.toArray(skillsContentRef.current.children) : [],
+        expContentRef.current ? gsap.utils.toArray(expContentRef.current.children) : [],
+        eduContentRef.current ? gsap.utils.toArray(eduContentRef.current.children) : [],
       ]);
     };
-  }, [handleMouseDown, handleMouseMove, handleMouseUp]); // 11. ADDED: Scroller deps
+  }, [handleMouseDown, handleMouseMove, handleMouseUp]); // Dependencies are correct
 
   return (
     <>
       {/* --- NEW: HERO SECTION --- */}
       <div
-        ref={heroSectionRef} // <-- ADDED REF
-        // --- ⭐️ FIX 1: ADDED overflow-x-hidden ---
+        ref={heroSectionRef} 
         className="relative z-10 w-full min-h-screen flex items-center pt-32 pb-20 text-dark-text overflow-x-hidden"
       >
         {/* Particle Background */}
@@ -615,16 +681,12 @@ const AboutFounderPage: React.FC = () => {
           <div className="flex flex-col md:flex-row gap-12 md:gap-16 items-center">
             {/* --- Left Side (Text & Socials) --- */}
             <div ref={heroLeftColRef} className="flex-1">
-              {' '}
-              {/* <-- ADDED REF */}
               
-              {/* --- ⭐️ FIX 2: Responsive Hero Title --- */}
               <h1 className="text-2xl sm:text-4xl md:text-5xl font-semibold text-white">
                 Hey, I&apos;m
                 <span className="text-gradient-neon"> Ishaan Katara</span>
               </h1>
 
-              {/* --- ⭐️ FIX 3: Responsive Typewriter --- */}
               <h2 className="text-xl sm:text-2xl md:text-3xl font-semibold mt-4 mb-8 typewriter-gradient font-roboto-mono">
                 <span className="text-dark-text mr-2">{prefix}</span>
                 <span>
@@ -635,65 +697,53 @@ const AboutFounderPage: React.FC = () => {
                     }}
                     onInit={(typewriter) => {
                       typewriter
-
-
                         .callFunction(() => {
                           setPrefix('I am the');
                         })
                         .typeString('Founder of SevenIsK')
                         .pauseFor(1500)
                         .deleteAll()
-
                         .callFunction(() => {
                           setPrefix('I am a');
                         })
                         .typeString('Computer Scientist')
                         .pauseFor(1500)
                         .deleteAll()
-
                         .callFunction(() => {
                           setPrefix('I am a');
                         })
                         .typeString('Software Developer')
                         .pauseFor(1500)
                         .deleteAll()
-
                         .callFunction(() => {
                           setPrefix('I am a');
                         })
                         .typeString('Machine Learning Engineer')
                         .pauseFor(1500)
                         .deleteAll()
-
                         .callFunction(() => {
                           setPrefix('I am an');
                         })
                         .typeString('Agentic AI Developer')
                         .pauseFor(1500)
                         .deleteAll()
-
                         .callFunction(() => {
                           setPrefix('I am a');
                         })
                         .typeString('DevSecOps Engineer')
                         .pauseFor(1500)
                         .deleteAll()
-
                         .callFunction(() => {
                           setPrefix('I am a');
                         })
                         .typeString('Data Scientist')
                         .pauseFor(1500)
                         .deleteAll()
-
-                        
-
                         .start();
                     }}
                   />
                 </span>
               </h2>
-              {/* --- End of FIXES --- */}
 
               {/* --- NEW: Social Icons --- */}
               <div className="flex flex-row gap-6 mt-8">
@@ -717,18 +767,14 @@ const AboutFounderPage: React.FC = () => {
               ref={heroRightColRef}
               className="shrink-0 w-full max-w-sm md:w-1/3 md:max-w-none"
             >
-              {' '}
-              {/* <-- ADDED REF */}
               <div style={{ perspective: '1000px' }}>
-                {/* --- ⭐️ FIX 2: NEW STRUCTURE --- */}
-                {/* This is the 3D context and tilt wrapper */}
                 <div
                   ref={snippetTiltWrapperRef}
                   className="relative w-full"
                   style={{ transformStyle: 'preserve-3d' }}
                 >
                   
-                  {/* 1. SNIPPETS (BACKGROUND) - positioned absolutely relative to tilt wrapper */}
+                  {/* 1. SNIPPETS (BACKGROUND) */}
                   <div
                     ref={snippetWrapperRef}
                     className="absolute inset-0 flex justify-center items-center"
@@ -744,11 +790,11 @@ const AboutFounderPage: React.FC = () => {
                     ))}
                   </div>
 
-                  {/* 2. IMAGE (FOREGROUND) - centered */}
+                  {/* 2. IMAGE (FOREGROUND) */}
                   <div
                     ref={mainContainerRef}
                     style={{ opacity: 0, transformStyle: 'preserve-3d' }}
-                    className="relative z-10 w-full max-w-[270px] md:max-w-full mx-auto" // No overflow-hidden
+                    className="relative z-10 w-full max-w-[270px] md:max-w-full mx-auto"
                   >
                     <div
                       ref={imageElRef}
@@ -766,7 +812,6 @@ const AboutFounderPage: React.FC = () => {
                   </div>
 
                 </div>
-                {/* --- End of FIX 2 --- */}
               </div>
               <p className="text-center mt-4 text-dark-text">
                 Ishaan Katara, Founder & Developer
@@ -778,116 +823,231 @@ const AboutFounderPage: React.FC = () => {
 
       {/* --- UPDATED: ABOUT ME SECTION --- */}
       <div
-        ref={aboutMeSectionRef} // (Ref was already here, correct)
+        ref={aboutMeSectionRef}
         className="relative z-10 py-20 text-dark-text bg-dark-bg"
       >
         <div className="container mx-auto px-5">
           <div className="flex flex-col md:flex-row gap-12 md:gap-16">
             {/* --- Left Column (Tabs & CV) --- */}
             <div
-              ref={aboutMeLeftColRef} // (Ref was already here, correct)
-              className="md:w-1D3" // Typo here, should be md:w-1/3
+              ref={aboutMeLeftColRef}
+              className="md:w-1/3" // FIXED typo
             >
               <h2 className="text-3xl md:text-4xl font-semibold text-white text-left mb-8">
                 About <span className="text-gradient-neon">Me</span>
               </h2>
 
-              {/* The Tabs and CV Button */}
-              <div className="flex flex-row mt-8 mb-4">
-                <TabButton
-                  selectTab={() => setTab('skills')}
-                  active={tab === 'skills'}
+              {/* --- ⭐️ NEW: Tab Button Implementation ⭐️ --- */}
+              <div
+                ref={tabsContainerRef}
+                className="relative flex flex-row mt-8 mb-4"
+              >
+                <button
+                  ref={skillsTabRef}
+                  onClick={() => handleTabChange('skills', skillsTabRef)}
+                  className="mr-6 py-1"
                 >
-                  Skills
-                </TabButton>
-                <TabButton
-                  selectTab={() => setTab('expereince')}
-                  active={tab === 'expereince'}
+                  <p
+                    className={`font-semibold transition-all ${
+                      tab === 'skills' ? 'text-white' : 'text-dark-text'
+                    }`}
+                  >
+                    <span className="text-gradient-neon">Skills</span>
+                  </p>
+                </button>
+                <button
+                  ref={expTabRef}
+                  onClick={() =>
+                    handleTabChange('expereince', expTabRef)
+                  }
+                  className="mr-6 py-1"
                 >
-                  Experience
-                </TabButton>
-                <TabButton
-                  selectTab={() => setTab('education')}
-                  active={tab === 'education'}
+                  <p
+                    className={`font-semibold transition-all ${
+                      tab === 'expereince' ? 'text-white' : 'text-dark-text'
+                    }`}
+                  >
+                    <span className="text-gradient-neon">Experience</span>
+                  </p>
+                </button>
+                <button
+                  ref={eduTabRef}
+                  onClick={() => handleTabChange('education', eduTabRef)}
+                  className="mr-6 py-1"
                 >
-                  Education
-                </TabButton>
+                  <p
+                    className={`font-semibold transition-all ${
+                      tab === 'education' ? 'text-white' : 'text-dark-text'
+                    }`}
+                  >
+                    <span className="text-gradient-neon">Education</span>
+                  </p>
+                </button>
+                {/* The Sliding Underline */}
+                <div
+                  ref={underlineRef}
+                  className="absolute bottom-0 left-0 h-[3px] bg-brand-teal rounded-full"
+                />
               </div>
+              {/* --- ⭐️ End of new Tab implementation ⭐️ --- */}
 
-              {/* FIXED: Restored original min-height */}
-              <div className="mt-4 min-h-[180px]">
-                {/* FIXED: Restored original Skills UL */}
-                {tab === 'skills' && (
-                  <ul className="list-disc pl-5 space-y-2">
-                    <li>
-                      <span>AI\ML</span>
-                      <br />
-                      Developing and Training ML models.
-                    </li>
-                    <li>
-                      <span>Agentic AI Development</span>
-                      <br />
-                      Developing and Designing Agentic AI.
-                    </li>
-                    <li>
-                      <span>Back-End Development</span>
-                      <br />
-                      Creating server side back-end using Python and Node.js.
-                    </li>
-                    <li>
-                      <span>DevOps</span>
-                      <br />
-                      Creating and delivering quality softwares through
-                      automation.
-                    </li>
-                  </ul>
-                )}
-                {tab === 'expereince' && (
-                  <ul className="list-disc pl-5 space-y-2">
-                    <li>
-                      <span>Jan 2025 - March 2025 </span>
-                      <br />
-                      SDE Intern at Digital India Corporation.
-                    </li>
-                    <li>
-                      <span>Oct 2024 - Dec 2024</span>
-                      <br />
-                      SDE Intern at STQC (Ministry of Electronics and
-                      Information Technology).
-                    </li>
-                    <li>
-                      <span>May 2024 - July 2024</span>
-                      <br />
-                      SDE Intern at Sustainivo.
-                    </li>
-                    <li>
-                      <span>Nov 2022 - Current</span>
-                      <br />
-                      Founder of Merch Pirates a merchandise retail
-                      organization.
-                    </li>
-                  </ul>
-                )}
-                {tab === 'education' && (
-                  <ul className="list-disc pl-5 space-y-2">
-                    <li>
-                      <span>2023 - 2025</span>
-                      <br />
-                      B. Tech in CSE from JIIT, Noida-62
-                    </li>
-                    <li>
-                      <span>2021 - 2022</span>
-                      <br />
-                      B. Tech in CSE from DIT, Dehradun
-                    </li>
-                    <li>
-                      <span>2020 - 2021</span>
-                      <br />
-                      CBSE Class 12th from Modern Public School, Delhi.
-                    </li>
-                  </ul>
-                )}
+              {/* --- ⭐️ MODIFIED: Content container for animation ⭐️ --- */}
+              {/* This parent div holds the height while children animate */}
+              <div className="relative mt-4 min-h-[220px]"> 
+                <ul
+                  ref={skillsContentRef}
+                  className="space-y-4" // Removed list-disc and padding
+                >
+                  <li className="flex flex-row gap-3">
+                    <div className="mt-1">
+                      <FaBrain className="text-brand-teal text-lg" />
+                    </div>
+                    <div>
+                      <span className="font-semibold text-white">AI\ML</span>
+                      <p className="text-sm text-dark-text mt-0.5">
+                        Developing and Training ML models.(LLMs/GenAI & CNNs)
+                      </p>
+                    </div>
+                  </li>
+                  <li className="flex flex-row gap-3">
+                    <div className="mt-1">
+                      <FaSitemap className="text-brand-teal text-lg" />
+                    </div>
+                    <div>
+                      <span className="font-semibold text-white">
+                        Agentic AI Development
+                      </span>
+                      <p className="text-sm text-dark-text mt-0.5">
+                        Developing and Designing Agentic AI.
+                      </p>
+                    </div>
+                  </li>
+                  <li className="flex flex-row gap-3">
+                    <div className="mt-1">
+                      <FaServer className="text-brand-teal text-lg" />
+                    </div>
+                    <div>
+                      <span className="font-semibold text-white">
+                        Back-End Development
+                      </span>
+                      <p className="text-sm text-dark-text mt-0.5">
+                        Creating server side back-end using Python and Node.js.
+                      </p>
+                    </div>
+                  </li>
+                  <li className="flex flex-row gap-3">
+                    <div className="mt-1">
+                      <FaInfinity className="text-brand-teal text-lg" />
+                    </div>
+                    <div>
+                      <span className="font-semibold text-white">DevOps</span>
+                      <p className="text-sm text-dark-text mt-0.5">
+                        Creating and delivering quality softwares through automation.
+                      </p>
+                    </div>
+                  </li>
+                </ul>
+
+                <ul
+                  ref={expContentRef}
+                  className="space-y-4 hidden" // Start hidden
+                >
+                  <li className="flex flex-row gap-3">
+                    <div className="mt-1">
+                      <FaBriefcase className="text-brand-teal text-lg" />
+                    </div>
+                    <div>
+                      <span className="font-semibold text-white">
+                        June 2025 - Current
+                      </span>
+                      <p className="text-sm text-dark-text mt-0.5">
+                        SDE Intern at Digital India Corporation.
+                      </p>
+                    </div>
+                  </li>
+                  <li className="flex flex-row gap-3">
+                    <div className="mt-1">
+                      <FaBriefcase className="text-brand-teal text-lg" />
+                    </div>
+                    <div>
+                      <span className="font-semibold text-white">
+                        Oct 2024 - Dec 2024
+                      </span>
+                      <p className="text-sm text-dark-text mt-0.5">
+                        SDE Intern at STQC (Ministry of Electronics and Information
+                        Technology).
+                      </p>
+                    </div>
+                  </li>
+                  <li className="flex flex-row gap-3">
+                    <div className="mt-1">
+                      <FaBriefcase className="text-brand-teal text-lg" />
+                    </div>
+                    <div>
+                      <span className="font-semibold text-white">
+                        May 2024 - July 2024
+                      </span>
+                      <p className="text-sm text-dark-text mt-0.5">
+                        SDE Intern at Sustainivo.
+                      </p>
+                    </div>
+                  </li>
+                  <li className="flex flex-row gap-3">
+                    <div className="mt-1">
+                      <FaBuilding className="text-brand-teal text-lg" />
+                    </div>
+                    <div>
+                      <span className="font-semibold text-white">
+                        Nov 2023 - Current
+                      </span>
+                      <p className="text-sm text-dark-text mt-0.5">
+                        Founder of SevenIsK.
+                      </p>
+                    </div>
+                  </li>
+                </ul>
+                
+                <ul
+                  ref={eduContentRef}
+                  className="space-y-4 hidden" // Start hidden
+                >
+                  <li className="flex flex-row gap-3">
+                    <div className="mt-1">
+                      <FaGraduationCap className="text-brand-teal text-lg" />
+                    </div>
+                    <div>
+                      <span className="font-semibold text-white">2023 - 2025</span>
+                      <p className="text-sm text-dark-text mt-0.5">
+                        B. Tech in CSE from JIIT, Noida-62
+                      </p>
+                    </div>
+                  </li>
+                  <li className="flex flex-row gap-3">
+                    <div className="mt-1">
+                      <FaGraduationCap className="text-brand-teal text-lg" />
+                    </div>
+                    <div>
+                      <span className="font-semibold text-white">2021 - 2022</span>
+                      <p className="text-sm text-dark-text mt-0.5">
+                        B. Tech in CSE from DIT, Dehradun
+                      </p>
+                    </div>
+                  </li>
+                  <li className="flex flex-row gap-3">
+                    <div className="mt-1">
+                      <FaSchool className="text-brand-teal text-lg" />
+                    </div>
+                    <div>
+                      <span className="font-semibold text-white">2020 - 2021</span>
+                      <p className="text-sm text-dark-text mt-0.5">
+                        CBSE Class 12th from Modern Public School, Delhi.
+                      </p>
+                    </div>
+                  </li>
+                </ul>
               </div>
+              {/* --- ⭐️ End of modified content container ⭐️ --- */}
+
               <button
                 onClick={() => setIsModalOpen(true)}
                 className="btn inline-block bg-brand-teal-hover text-black py-3 px-8 rounded-md font-semibold mt-6 transition-all duration-300 hover:bg-brand-teal"
