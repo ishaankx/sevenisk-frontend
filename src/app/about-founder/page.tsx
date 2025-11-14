@@ -1029,7 +1029,7 @@ const AboutFounderPage: React.FC = () => {
                         June 2025 - Current
                       </span>
                       <p className="text-sm text-dark-text mt-0.5">
-                        SDE Intern at Digital India Corporation.
+                        Software Engineer - ML Systems at Cinntra.
                       </p>
                     </div>
                   </li>
