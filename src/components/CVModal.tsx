@@ -83,6 +83,10 @@ const CVModal: React.FC<CVModalProps> = ({ isOpen, onClose }) => {
             {/* This text is now correct and matches the logic. */}
             <p className="text-dark-text mb-6">
               Please enter your details to log your request. Your download will begin immediately.
+              <span className='text-xs underline decoration-1 underline-offset-2'>
+                <br />
+                  Note: Please Do wait for a few seconds as request may take some time due to render free tier.
+              </span>
             </p>
             
             <form onSubmit={handleSubmit}>

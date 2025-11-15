@@ -17,6 +17,7 @@ import Typewriter from 'typewriter-effect';
 
 import ProjectCard from '@/components/ProjectCard';
 import { projects } from '@/data/projectsData';
+import Contact from "@/components/FounderContact";
 
 // NEW: Import social icons
 import {
@@ -69,6 +70,7 @@ import {
   SiGit,
 } from 'react-icons/si';
 import { TbBrain } from 'react-icons/tb';
+import FounderContact from '@/components/FounderContact';
 
 // NEW: Lazily import the 3D Model component
 const ParticlesBackground = lazy(
@@ -273,6 +275,18 @@ const AboutFounderPage: React.FC = () => {
     },
     [handleMouseMove, handleMouseUp]
   );
+
+
+  // --- ⭐️ NEW: "Show Less" Handler ⭐️ ---
+  const handleShowLess = useCallback(() => {
+    setShowAllProjects(false);
+    // Smoothly scroll back to the top of the projects section
+    projectsSectionRef.current?.scrollIntoView({ 
+      behavior: 'smooth',
+      block: 'start' 
+    });
+  }, []); // No dependencies needed
+  
   
   // --- ⭐️ MODIFIED: Tab Animation Logic ⭐️ ---
   const animateUnderline = (target: HTMLElement) => {
@@ -1291,9 +1305,24 @@ const AboutFounderPage: React.FC = () => {
           )}
           {/* --- ⭐️⭐️ END OF NEW BUTTON ⭐️⭐️ --- */}
 
+          {/* --- ⭐️ NEW: "Show Less" Button ⭐️ --- */}
+          {showAllProjects && projects.length > 3 && (
+            <div className="text-center mt-12">
+              <button
+                onClick={handleShowLess}
+                className="btn inline-block bg-zinc-700 text-white py-3 px-8 rounded-md font-semibold transition-all duration-300 hover:bg-zinc-600 hover:scale-105"
+              >
+                Show Less
+              </button>
+            </div>
+          )}
+          {/* --- ⭐️⭐️ END OF BUTTON LOGIC ⭐️⭐️ --- */}
+
         </div>
       </section>
       {/* --- ⭐️⭐️ END OF MODIFIED SECTION ⭐️⭐️ --- */}
+
+      <FounderContact />
 
 
       <CVModal isOpen={isModalOpen} onClose={() => setIsModalOpen(false)} />
