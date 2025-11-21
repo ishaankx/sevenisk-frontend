@@ -113,7 +113,7 @@ const About: React.FC = () => {
 
   return (
     <>
-      <div id="about" className="py-20 text-dark-text">
+      <div id="about" className="py-20 pb-5 text-dark-text">
         <div className="container mx-auto px-5">
 
           {/* ----- ABOUT US Section (RE-ARCHITECTED) ----- */}
@@ -131,15 +131,15 @@ const About: React.FC = () => {
             {/* 2. Text Content (On Right) */}
             <div ref={aboutUsTextRef} className="flex-1">
               <h1 className="sub-title text-gradient-neon">About Us</h1>
-              <p className="text-lg text-justify mb-4">
-                As a premier service provider and software development organization, we are dedicated to delivering high-quality and innovative solutions tailored to meet our customers&apos; unique challenges.
-              </p>
-              <p className="text-justify mb-4">
-                Our mission is to design and develop professional, top-tier software across various categories, empowering individuals and businesses to achieve their goals efficiently and effectively.
-              </p>
-              <p className="text-justify">
-                We pride ourselves on our commitment to excellence, ensuring that every software product we create is robust, reliable, and user-friendly.
-              </p>
+              <p className="text-lg text-justify leading-relaxed">
+  As a <strong className="text-white">premier service provider</strong> and <strong className="text-white">software development organization</strong>, we focus on building high-quality and innovative digital solutions tailored to real-world challenges. Our mission is to design and deliver <span className="text-brand-teal font-medium">professional, top-tier software</span> across multiple domains, empowering individuals and businesses to operate more efficiently and achieve their goals effectively. We maintain a strong commitment to <strong className="text-white">engineering excellence</strong>, ensuring that every product we create is{' '}
+  <span className="text-brand-teal font-medium">robust</span>,{' '}
+  <span className="text-brand-teal font-medium">reliable</span>,{' '}
+  <span className="text-brand-teal font-medium">secure</span>, and{' '}
+  <span className="text-brand-teal font-medium">user-friendly</span>, built with precision and long-term scalability in mind.
+</p>
+
+
             </div>
           </div>
 

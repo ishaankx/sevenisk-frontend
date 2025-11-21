@@ -1144,39 +1144,21 @@ const AboutFounderPage: React.FC = () => {
               className="md:w-2/3 md:pt-20"
             >
               {/* The Paragraph with highlights */}
-              <p className="text-lg text-justify leading-relaxed">
-                Ishaan Katara, the founder of{' '}
-                <strong className="text-white">SevenIsK</strong>, is a{' '}
-                <span className="text-brand-teal font-medium">
-                  Computer Science Engineer
-                </span>{' '}
-                and technology innovator passionate about building intelligent
-                and secure software systems. With hands-on experience across{' '}
-                <span className="text-brand-teal font-medium">
-                  AI Engineering
-                </span>
-                ,{' '}
-                <span className="text-brand-teal font-medium">
-                  Software Development
-                </span>
-                , and{' '}
-                <span className="text-brand-teal font-medium">DevSecOps</span>,
-                Ishaan has led projects that bridge automation, machine
-                learning, and scalable backend architectures. He has previously
-                contributed to organizations like the{' '}
-                <strong className="text-white">
-                  Ministry of Electronics and Information Technology
-                </strong>{' '}
-                and <strong className="text-white">Sustainivo</strong>,
-                developing end-to-end MLOps pipelines, secure microservices, and
-                AI-driven solutions. Through SevenIsK, Ishaan aims to drive
-                innovation by creating advanced, human-centric technologies that
-                combine{' '}
-                <span className="text-brand-teal font-medium">
-                  intelligence, efficiency, and reliability
-                </span>
-                .
-              </p>
+             <p className="text-lg text-justify leading-relaxed">
+              Hi, I’m{' '}
+              <span className="text-white font-medium"><strong>Ishaan Katara</strong></span>, a{' '}
+              <span className="text-brand-teal font-medium">Computer Science Engineer</span> and the founder of{' '}
+              <strong className="text-brand-teal">SevenIsK</strong>. I focus on building intelligent and secure systems, working across{' '}
+              <span className="text-brand-teal font-medium">AI Engineering</span>,{' '}
+              <span className="text-brand-teal font-medium">Software Development</span>, and{' '}
+              <span className="text-brand-teal font-medium">DevSecOps</span>, with experience in model pipelines, backend architectures, and system optimization. I’m currently working at{' '}
+              <strong className="text-white">Cinntra</strong> in the ML Systems team and have contributed to high-impact projects at the{' '}
+              <strong className="text-white">Ministry of Electronics and Information Technology</strong> and{' '}
+              <strong className="text-white">Sustainivo</strong>, where I worked on secure microservices, MLOps workflows, and AI-driven solutions. Through SevenIsK, I aim to build practical, scalable, and reliable technology that genuinely makes an impact.
+            </p>
+
+
+
             </div>
           </div>
 
